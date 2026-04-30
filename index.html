@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#0FA6A1">
+    <title>Hub Management System</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.6/ladda-themeless.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        /* ================= GLOBAL & RESET ================= */
+        body { margin: 0; padding: 0; font-family: Roboto, Tahoma, Verdana, sans-serif; overflow: hidden; background-color: #eaeff1; }
+        .hidden { display: none !important; }
+        * { box-sizing: border-box; }
+
+        /* ================= LOGIN VIEW ================= */
+        #login-view { background-color: #f3f3f3; height: 100vh; overflow-y: auto; }
+        .login-navbar { background-color: #2874f0; min-height: 65px; border: none; border-radius: 0; margin-bottom: 0; }
+        .login-container { margin-top: 150px; }
+        .box { margin: 10px auto 30px; width: 50%; }
+        .common-text { font-family: Tahoma, Verdana, sans-serif; }
+        .input-label { font-weight: normal; margin-bottom: 5px; display: block; }
+        .span-whole { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; outline: none; border-radius: 3px; }
+        .span-whole:focus { border-color: #2874f0; }
+        .login-submit { color: white; background-color: #2874f0; border: 1px solid #3079ed; margin: 0px auto; width: 100px; height: 34px; border-radius: 3px; display: block; }
+        .panel-custom { background: antiquewhite; border-color: burlywood; padding: 20px; border-radius: 4px; border: 1px solid transparent; margin-bottom: 20px; }
+        #login-headline { text-align: center; border-bottom: 1px solid #cacaca; font-size: 22px; padding: 15px 0px 10px; }
+        #idp-message { text-align: center; padding: 10px; font-size: 13px; }
+        #login-message { text-align: center; padding: 10px; font-size: 13px; color: red; display: none; }
+
+        /* ================= APP VIEW & LAYOUT ================= */
+        #app-view { display: flex; flex-direction: column; height: 100vh; }
+        
+        .navbar-new { background-color: #109e9a; color: white; min-height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; margin: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 20;}
+        .navbar-left { display: flex; align-items: center; }
+        .header-brand { font-size: 20px; cursor: pointer; margin: 0; font-weight: bold; }
+        .humberger { cursor: pointer; margin-right: 15px; display: inline-flex; flex-direction: column; gap: 4px; vertical-align: middle; }
+        .humberger span { width: 22px; height: 3px; background-color: #222; display: block; border-radius: 1px; }
+        
+        .navbar-right { display: flex; align-items: center; gap: 20px; }
+        .user-icon-btn { color: #222; cursor: pointer; font-size: 18px; }
+        .facility-select-nav { width: 220px; background-color: #0e8c89; color: white; border: none; padding: 6px 30px 6px 10px; border-radius: 3px; outline: none; appearance: none; -webkit-appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 5px center; cursor: pointer; }
+        .facility-select-nav option { color: black; background: white; }
+        
+        .app-container { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
+        #side_wrapper { width: 250px; background-color: #2f4050; transition: width 0.3s; flex-shrink: 0; display: flex; flex-direction: column; position: relative; z-index: 5; }
+        #side_wrapper.collapsed { width: 0; border: none; }
+        .side-bar { flex-grow: 1; overflow-y: auto; color: #a7b1c2; padding-bottom: 20px; }
+        .side-menu { padding: 10px 15px; margin: 0; background: #293846; font-size: 14px; font-weight: bold; color: white; border-top: 1px solid #2f4050; }
+        .side-menu-item { padding: 8px 15px 8px 25px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #293846; display: flex; align-items: center; }
+        .side-menu-item:hover { color: white; }
+        .side-menu-item a { color: inherit; text-decoration: none; margin-left: 8px; width: 100%; }
+        
+        .side-bar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 20px; color: white; font-weight: bold; z-index: 10; font-size: 14px; text-align: center;}
+        
+        .main-content { flex-grow: 1; padding: 20px 30px; overflow-y: auto; background-color: #eaeff1; position: relative; }
+        .view-section { display: none; }
+        .active-view { display: block; }
+        
+        /* ================= THEMED COMPONENTS ================= */
+        .page-title { color: #555; font-size: 24px; font-weight: normal; margin-top: 0; padding-bottom: 15px; }
+        .theme-label { font-weight: bold; color: #333; margin-bottom: 5px; display: block; font-size: 14px; }
+        
+        .scan-input-white { width: 100%; background-color: #fff; border: 1px solid #ccc; padding: 8px 12px; margin-bottom: 15px; outline: none; height: 38px; text-transform: uppercase; color: #333; border-radius: 3px; }
+        .scan-input-white:focus { border-color: #109e9a; box-shadow: 0 0 4px rgba(16,158,154,0.5); }
+        
+        .dropdown-teal { width: 250px; background-color: #109e9a; color: white; border: none; padding: 8px 12px; border-radius: 3px; outline: none; appearance: none; -webkit-appearance: none; height: 38px; background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 5px center; cursor: pointer; font-size: 14px;}
+        .dropdown-teal option { color: black; background: white; }
+
+        .spinner-container { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); display: none; }
+        .blue-spinner { border: 3px solid transparent; border-top: 3px solid #007bff; border-right: 3px solid #007bff; border-bottom: 3px solid #007bff; border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Output Box & Buttons */
+        .isa_error { color: #D8000C; background-color: #FFBABA; padding: 10px; margin-bottom: 10px; border-radius: 3px; font-weight: bold; display: none; font-size: 14px;}
+        
+        .success-box { background-color: #dcedc8; border: 1px solid #333; padding: 20px; margin-bottom: 20px; display: none; }
+        .success-text { font-size: 4rem; color: #000; line-height: 1.2; word-wrap: break-word; }
+        
+        .btn-pink { background-color: #ff4081; color: white; border: none; padding: 10px 20px; border-radius: 3px; font-weight: 500; font-size: 14px; cursor: pointer; }
+        .btn-pink:hover { background-color: #e91e63; }
+    </style>
+</head>
+<body>
+
+    <div id="login-view">
+        <nav class="navbar login-navbar navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-brand">
+                    <img width="149" src="https://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/flipkart-plus_8d85f4.png" alt="Flipkart">
+                </div>
+            </div>
+        </nav>
+
+        <div class="container login-container">
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <div class="panel panel-custom">
+                        <div class="text-center">
+                            <b>Please do not share your password with anyone.</b><br>
+                            Any user found sharing password with any one whatsoever case may be, <br> <b><font color="red">strict disciplinary action including termination</font></b> will be initiated against the defaulter.
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="box">
+                            <div id="login-headline">Login</div>
+                            <div id="idp-message">Enter LDAP credentials</div>
+                            <div id="login-message"></div>
+                            <form id="loginForm">
+                                <label class="input-label">User Name</label>
+                                <input type="text" id="username" class="span-whole" required autocomplete="off">
+                                <label class="input-label">Password</label>
+                                <input type="password" id="password" class="span-whole" required>
+                                <div style="text-align: center; margin-top: 10px;">
+                                    <button id="loginSubmit" type="submit" class="login-submit ladda-button" data-style="zoom-in"><span class="ladda-label">Submit</span></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-view" class="hidden">
+        
+        <nav class="navbar-new">
+            <div class="navbar-left">
+                <div class="humberger" onclick="toggleSidebar()">
+                    <span></span><span></span><span></span>
+                </div>
+                <label class="header-brand" onclick="navigate('landing')">Hub System</label>
+            </div>
+            <div class="navbar-right">
+                <i class="fa fa-user user-icon-btn" title="Logout" onclick="handleLogout()"></i>
+                <select id="facilityDropdown" class="facility-select-nav" onchange="handleFacilityChange()">
+                    <option value="" disabled selected>Select Facility</option>
+                    <option value="CentralHub_L_MUMX">CentralHub_L_MUMX</option>
+                    <option value="60ftroadDex_HCT_ALD">60ftroadDex_HCT_ALD</option>
+                    <option value="70FeetLDP_PHU_PAT">70FeetLDP_PHU_PAT</option>
+                    <option value="AlipurHub_DEL">AlipurHub_DEL</option>
+                    <option value="BkcHub_MUM">BkcHub_MUM</option>
+                    <option value="PeenyaHub_BLR">PeenyaHub_BLR</option>
+                </select>
+            </div>
+        </nav>
+
+        <div class="app-container">
+            <div id="side_wrapper">
+                <div class="side-bar">
+                    <ul class="list-unstyled">
+                        <h5 class="side-menu">Dock Management</h5>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Dock In</a></li>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Dock Out</a></li>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Dock Allocation</a></li>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Geo-Fence Dashboard</a></li>
+
+                        <h5 class="side-menu">Inbound staging</h5>
+                        <li class="side-menu-item" onclick="navigate('ob-put')"><i class="fa fa-plus"></i><a href="#">Put</a></li>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Pick</a></li>
+
+                        <h5 class="side-menu">Outbound staging</h5>
+                        <li class="side-menu-item" onclick="navigate('ob-put')"><i class="fa fa-plus"></i><a href="#">Put</a></li>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">OutboundPick</a></li>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">TrackItems</a></li>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">TrackStagingDetails</a></li>
+
+                        <h5 class="side-menu">TCBasedHandover</h5>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Pick</a></li>
+
+                        <h5 class="side-menu">3PL Handover</h5>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Initiate Return Handover</a></li>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Initiate Forward Handover</a></li>
+
+                        <h5 class="side-menu">Labels</h5>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Bag Labels</a></li>
+
+                        <h5 class="side-menu">IRT Area</h5>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">IRT Area</a></li>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">IRT Dashboard</a></li>
+
+                        <h5 class="side-menu">bulk shipment</h5>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">bulkShipmentBagging</a></li>
+
+                        <h5 class="side-menu">ERP Screens</h5>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Shelf Receive Shipment</a></li>
+                        <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Handover to RC</a></li>
+                    </ul>
+                </div>
+                <div id="sidebar-overlay" class="side-bar-overlay">
+                    <span>Please select Facility first to perform any operations.</span>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div id="view-landing" class="view-section active-view">
+                    <div style="max-width: 600px;">
+                        <label class="theme-label">Scan Station Barcode</label>
+                        <input type="text" class="scan-input-white" autocomplete="off" onkeyup="triggerLandingSpinner(event)">
+                        
+                        <select class="dropdown-teal">
+                            <option value="" disabled selected></option>
+                            <option value="A1">Processing Area 1</option>
+                            <option value="A2">Processing Area 2</option>
+                        </select>
+                    </div>
+
+                    <div id="landing-spinner-container" class="spinner-container">
+                        <div class="blue-spinner"></div>
+                    </div>
+                </div>
+
+                <div id="view-ob-put" class="view-section">
+                    <h3 class="page-title">Put Item</h3>
+                    <div style="width: 100%; max-width: 900px;">
+                        <label class="theme-label">Scan Barcode</label>
+                        <input id="ob-scan-input" class="scan-input-white" autocomplete="off" type="text">
+                        
+                        <div id="msgError" class="isa_error">Item details not found!</div>
+                        
+                        <div id="msgSuccess" class="success-box">
+                            <div id="successText" class="success-text"></div>
+                        </div>
+                        
+                        <div id="actionButtons" style="display: none;">
+                            <button type="button" id="btnMarkFull" class="btn-pink" onclick="handleMarkFull()">Mark as FULL</button>
+                            <button type="button" class="btn-pink" onclick="handleSkip()" style="margin-left: 5px;">Skip</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.6/spin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.6/ladda.min.js"></script>
+
+    <script>
+        // State & Configuration
+        let currentFacility = "";
+        let currentView = "landing";
+        let scanDatabase = {};
+        
+        toastr.options = { positionClass: "toast-bottom-center", showDuration: "300", hideDuration: "1000", timeOut: 2000 };
+
+        $(document).ready(function() {
+            // Load the database from GitHub
+            fetchDatabase();
+
+            if (sessionStorage.getItem('hms_auth') === 'true') {
+                $('#login-view').addClass('hidden');
+                $('#app-view').removeClass('hidden');
+                
+                const savedFacility = sessionStorage.getItem('hms_facility');
+                if (savedFacility) {
+                    $('#facilityDropdown').val(savedFacility);
+                    handleFacilityChange();
+                }
+            }
+
+            $('#loginSubmit').on('click', function(e) {
+                e.preventDefault();
+                const l = Ladda.create(this);
+                l.start();
+
+                setTimeout(function() {
+                    l.stop();
+                    const user = $('#username').val();
+                    const pass = $('#password').val();
+
+                    if (user === 'Admin' && pass === 'Admin') {
+                        sessionStorage.setItem('hms_auth', 'true');
+                        $('#login-message').hide();
+                        $('#login-view').addClass('hidden');
+                        $('#app-view').removeClass('hidden');
+                        navigate('landing');
+                    } else {
+                        $('#login-message').text('Invalid credentials').show();
+                        toastr.error('Invalid credentials provided.');
+                    }
+                }, 600);
+            });
+
+            // Single Stage Direct Output Scan
+            $('#ob-scan-input').on('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    const scannedValue = $(this).val().trim().toUpperCase();
+                    $(this).val(''); 
+
+                    $('#msgError, #msgSuccess, #actionButtons').hide();
+
+                    if (scanDatabase[scannedValue]) {
+                        const rawOutput = scanDatabase[scannedValue];
+                        
+                        let locationStr = "Bin";
+                        if(rawOutput.includes("Put to") && rawOutput.includes("|")) {
+                            locationStr = rawOutput.split("|")[0].replace("Put to", "").trim();
+                        }
+                        
+                        let formattedOutput = rawOutput.replace(" | ", " |<br>").replace(" and scan barcode", "<br>and scan barcode");
+
+                        $('#successText').html(formattedOutput);
+                        $('#btnMarkFull').text(`Mark ${locationStr} as FULL`);
+                        
+                        $('#msgSuccess').show();
+                        $('#actionButtons').show();
+                    } else {
+                        $('#msgError').text('Item details not found!').show();
+                    }
+                }
+            });
+        });
+
+        // Fetch JSON from the GitHub Repository
+        async function fetchDatabase() {
+            try {
+                const response = await fetch('database.json?time=' + new Date().getTime());
+                if (!response.ok) throw new Error("Could not load database.json");
+                
+                scanDatabase = await response.json();
+                console.log("Database successfully loaded from GitHub.");
+            } catch (error) {
+                console.error("Failed to fetch database.json from GitHub:", error);
+                toastr.error("Warning: Failed to load barcode database.");
+            }
+        }
+
+        // Action Button Handlers
+        function handleSkip() {
+            $('#msgSuccess, #actionButtons').hide();
+            $('#msgError').text('Put Cancelled').show();
+            $('#ob-scan-input').val('').focus();
+        }
+
+        function handleMarkFull() {
+            $('#msgSuccess, #actionButtons').hide();
+            toastr.success('Location marked as full.');
+            $('#msgError').hide();
+            $('#ob-scan-input').val('').focus();
+        }
+
+        function handleLogout() {
+            sessionStorage.clear();
+            currentFacility = "";
+            $('#facilityDropdown').val("");
+            $('#loginForm')[0].reset();
+            $('#login-message').hide();
+            
+            $('#app-view').addClass('hidden');
+            $('#login-view').removeClass('hidden');
+            $('#sidebar-overlay').css('display', 'flex');
+            navigate('landing');
+        }
+
+        function toggleSidebar() {
+            $('#side_wrapper').toggleClass('collapsed');
+        }
+
+        function handleFacilityChange() {
+            currentFacility = $('#facilityDropdown').val();
+            sessionStorage.setItem('hms_facility', currentFacility);
+            $('#sidebar-overlay').hide();
+        }
+
+        function navigate(viewName) {
+            if (viewName !== 'landing' && !currentFacility) {
+                toastr.warning("Please select a facility first.");
+                return;
+            }
+            currentView = viewName;
+            $('.view-section').removeClass('active-view');
+            $('#view-' + currentView).addClass('active-view');
+
+            if (currentView === 'ob-put') {
+                $('#msgError, #msgSuccess, #actionButtons').hide();
+                $('#ob-scan-input').val('').focus();
+            }
+        }
+
+        function triggerLandingSpinner(e) {
+            if(e.key === 'Enter') {
+                $('#landing-spinner-container').show();
+                setTimeout(() => {
+                    $('#landing-spinner-container').hide();
+                    toastr.success('Station registered successfully.');
+                }, 1200);
+            }
+        }
+    </script>
+</body>
+</html>
