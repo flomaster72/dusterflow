@@ -346,7 +346,11 @@
                             // Success: Bin matched
                             toastr.success('Put successful!');
                             pendingTrackingId = null; // Clear state to accept next shipment
-                            $('#msgLargeBox').hide();
+                            
+                            // Show "Shipment Added" in Large Green Box
+                            $('#msgLargeBox').css('background-color', '#e2f0ca').show();
+                            $('#largeBoxText').html("Shipment Added");
+                            
                             $('#actionButtons').hide();
                         } else {
                             // Failure: Scanned wrong bin or another shipment
