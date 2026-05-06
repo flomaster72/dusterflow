@@ -83,6 +83,8 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Output Box & Buttons */
+        .isa_error { color: #D8000C; background-color: #FFBABA; padding: 10px; margin-bottom: 10px; border-radius: 3px; font-weight: bold; display: none; font-size: 14px;}
+        
         .large-message-box { background-color: #e2f0ca; border: 1px solid #000; padding: 20px 30px; margin-bottom: 20px; display: none; min-height: 150px; }
         .large-message-text { font-size: 5rem; color: #000; line-height: 1.1; word-wrap: break-word; font-family: Roboto, Tahoma, sans-serif; }
         
@@ -367,6 +369,15 @@
                     if (scanDatabase[scannedValue]) {
                         const rawOutput = scanDatabase[scannedValue];
                         
+                        // === NEW CONDITION: Reached RC check ===
+                        if (rawOutput.includes("The shipment has reached the source RC location")) {
+                            $('#msgLargeBox').css('background-color', '#FFBABA').show();
+                            $('#largeBoxText').html(rawOutput);
+                            $('#actionButtons').hide();
+                            return; // Stop here, do not set pendingTrackingId
+                        }
+                        
+                        // Normal Put Logic
                         let locationStr = "Bin";
                         if(rawOutput.includes("Put to") && rawOutput.includes("|")) {
                             locationStr = rawOutput.split("|")[0].replace("Put to", "").trim();
@@ -404,6 +415,12 @@
             } catch (error) {
                 console.error("Failed to fetch database.json from GitHub:", error);
                 toastr.error("Warning: Failed to load barcode database.");
+                
+                // Fallback DB strictly for testing offline or if fetch fails
+                scanDatabase = {
+                    "FMPC6008240197": "Put to Z3-G65 | CentralHub_L_PUNML1 and scan barcode",
+                    "FMP_RC_TEST": "The shipment has reached the source RC location. Move to RC"
+                };
             }
         }
 
