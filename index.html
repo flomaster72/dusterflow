@@ -18,7 +18,7 @@
         .hidden { display: none !important; }
         * { box-sizing: border-box; }
 
-        /* ================= LOGIN VIEW ================= */
+        /* ================= LOGIN VIEW (Classic Original) ================= */
         #login-view { background-color: #f3f3f3; height: 100vh; overflow-y: auto; }
         .login-navbar { background-color: #2874f0; min-height: 65px; border: none; border-radius: 0; margin-bottom: 0; }
         .login-container { margin-top: 150px; }
@@ -83,8 +83,6 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Output Box & Buttons */
-        .isa_error { color: #D8000C; background-color: #FFBABA; padding: 10px; margin-bottom: 10px; border-radius: 3px; font-weight: bold; display: none; font-size: 14px;}
-        
         .large-message-box { background-color: #e2f0ca; border: 1px solid #000; padding: 20px 30px; margin-bottom: 20px; display: none; min-height: 150px; }
         .large-message-text { font-size: 5rem; color: #000; line-height: 1.1; word-wrap: break-word; font-family: Roboto, Tahoma, sans-serif; }
         
@@ -268,10 +266,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.6/ladda.min.js"></script>
 
     <script>
-        // State & Configuration
         let currentFacility = "";
         let currentView = "landing";
         let scanDatabase = {};
+        let pendingTrackingId = null; // Used to lock the state and wait for the Bin Scan
         
         toastr.options = { positionClass: "toast-bottom-center", showDuration: "300", hideDuration: "1000", timeOut: 2000 };
 
@@ -296,7 +294,7 @@
                 }
             }
 
-            // Login Submit Logic
+            // Login Logic
             $('#loginSubmit').on('click', function(e) {
                 e.preventDefault();
                 const l = Ladda.create(this);
@@ -307,10 +305,10 @@
                     const user = $('#username').val();
                     const pass = $('#password').val();
 
-                    if (user && pass) {
+                    if (user && pass) { // Basic validation
                         sessionStorage.setItem('hms_auth', 'true');
-                        sessionStorage.setItem('hms_user', user); // Save username for dropdown
-                        $('#loggedInUser').text(user); // Set dropdown text
+                        sessionStorage.setItem('hms_user', user); 
+                        $('#loggedInUser').text(user); 
                         
                         $('#login-message').hide();
                         $('#login-view').addClass('hidden');
@@ -323,7 +321,7 @@
                 }, 600);
             });
 
-            // Single Stage Direct Output Scan (OB Put)
+            // Two-Stage Barcode Scanner Logic (Shipment -> Bin)
             $('#ob-scan-input').on('keyup', function(e) {
                 if (e.key === 'Enter') {
                     const scannedValue = $(this).val().trim().toUpperCase();
@@ -332,10 +330,39 @@
 
                     $('#msgLargeBox, #actionButtons').hide();
 
+                    // ----------------------------------------------------
+                    // STATE 2: Waiting for Bin Scan (Location)
+                    // ----------------------------------------------------
+                    if (pendingTrackingId !== null) {
+                        const rawOutput = scanDatabase[pendingTrackingId];
+                        let expectedLocation = "";
+                        
+                        // Extract expected location (e.g. Z3-G65)
+                        if(rawOutput.includes("Put to") && rawOutput.includes("|")) {
+                            expectedLocation = rawOutput.split("|")[0].replace("Put to", "").trim().toUpperCase();
+                        }
+                        
+                        if (scannedValue === expectedLocation) {
+                            // Success: Bin matched
+                            toastr.success('Put successful!');
+                            pendingTrackingId = null; // Clear state to accept next shipment
+                            $('#msgLargeBox').hide();
+                            $('#actionButtons').hide();
+                        } else {
+                            // Failure: Scanned wrong bin or another shipment
+                            $('#msgLargeBox').css('background-color', '#FFBABA').show();
+                            $('#largeBoxText').html(`Wrong Bin, Rescan the SHIPMENT ${pendingTrackingId}`);
+                            pendingTrackingId = null; // Force them to rescan the shipment tracking ID again
+                        }
+                        return; // Halt execution
+                    }
+
+                    // ----------------------------------------------------
+                    // STATE 1: Waiting for Shipment Scan (Tracking ID)
+                    // ----------------------------------------------------
                     if (scanDatabase[scannedValue]) {
                         const rawOutput = scanDatabase[scannedValue];
                         
-                        // Extract Location for the "Mark Full" button
                         let locationStr = "Bin";
                         if(rawOutput.includes("Put to") && rawOutput.includes("|")) {
                             locationStr = rawOutput.split("|")[0].replace("Put to", "").trim();
@@ -344,16 +371,18 @@
                         // Format message text with line breaks
                         let formattedOutput = rawOutput.replace(" | ", " |<br>").replace(" and scan barcode", "<br>and scan barcode");
 
-                        // Show in Large Green Box
+                        // Show instruction in Large Green Box
                         $('#msgLargeBox').css('background-color', '#e2f0ca').show();
                         $('#largeBoxText').html(formattedOutput);
                         
                         $('#btnMarkFull').text(`Mark ${locationStr} as FULL`);
                         $('#actionButtons').show();
                         
+                        // Lock the state: Next scan must be the Bin location
+                        pendingTrackingId = scannedValue;
                     } else {
-                        // "Item details not found!" using Large Green Box style
-                        $('#msgLargeBox').css('background-color', '#e2f0ca').show();
+                        // "Item details not found!" (Red Box)
+                        $('#msgLargeBox').css('background-color', '#FFBABA').show();
                         $('#largeBoxText').html("Item details not found!");
                     }
                 }
@@ -376,6 +405,7 @@
 
         // Action Button Handlers
         function handleSkip() {
+            pendingTrackingId = null; // Reset State
             $('#actionButtons').hide();
             // Show "Put Cancelled" in Large Green Box
             $('#msgLargeBox').css('background-color', '#e2f0ca').show();
@@ -384,6 +414,7 @@
         }
 
         function handleMarkFull() {
+            pendingTrackingId = null; // Reset State
             $('#msgLargeBox, #actionButtons').hide();
             toastr.success('Location marked as full.');
             $('#ob-scan-input').val('').focus();
@@ -393,6 +424,7 @@
         function handleLogout() {
             sessionStorage.clear();
             currentFacility = "";
+            pendingTrackingId = null;
             $('#facilityDropdown').val("");
             $('#loginForm')[0].reset();
             $('#login-message').hide();
@@ -423,6 +455,7 @@
             $('#view-' + currentView).addClass('active-view');
 
             if (currentView === 'ob-put') {
+                pendingTrackingId = null;
                 $('#msgLargeBox, #actionButtons').hide();
                 $('#lastScanText').text('');
                 $('#ob-scan-input').val('').focus();
