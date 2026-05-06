@@ -234,7 +234,7 @@
                 <div id="view-ob-put" class="view-section">
                     <h3 class="page-title">Put Item</h3>
                     <div style="width: 100%; max-width: 900px;">
-                        <label class="theme-label">Scan Item</label>
+                        <label class="theme-label" id="ob-scan-label">Scan Item</label>
                         <input id="ob-scan-input" class="scan-input-white" autocomplete="off" type="text" style="margin-bottom: 2px;">
                         <div style="text-align: right; font-size: 11px; font-weight: bold; color: #555; margin-bottom: 15px;" id="lastScanText"></div>
                         
@@ -271,15 +271,13 @@
         let currentFacility = "";
         let currentView = "landing";
         let scanDatabase = {};
-        let pendingTrackingId = null; // Used to lock the state and wait for the Bin Scan
+        let pendingTrackingId = null; 
         
         toastr.options = { positionClass: "toast-bottom-center", showDuration: "300", hideDuration: "1000", timeOut: 2000 };
 
         $(document).ready(function() {
-            // Load the database from GitHub
             fetchDatabase();
 
-            // Auto-login check
             if (sessionStorage.getItem('hms_auth') === 'true') {
                 $('#login-view').addClass('hidden');
                 $('#app-view').removeClass('hidden');
@@ -296,7 +294,6 @@
                 }
             }
 
-            // Login Logic
             $('#loginSubmit').on('click', function(e) {
                 e.preventDefault();
                 const l = Ladda.create(this);
@@ -307,7 +304,7 @@
                     const user = $('#username').val();
                     const pass = $('#password').val();
 
-                    if (user && pass) { // Basic validation
+                    if (user && pass) { 
                         sessionStorage.setItem('hms_auth', 'true');
                         sessionStorage.setItem('hms_user', user); 
                         $('#loggedInUser').text(user); 
@@ -339,7 +336,6 @@
                         const rawOutput = scanDatabase[pendingTrackingId];
                         let expectedLocation = "";
                         
-                        // Extract expected location (e.g. Z3-G65)
                         if(rawOutput.includes("Put to") && rawOutput.includes("|")) {
                             expectedLocation = rawOutput.split("|")[0].replace("Put to", "").trim().toUpperCase();
                         }
@@ -347,18 +343,19 @@
                         if (scannedValue === expectedLocation) {
                             // Success: Bin matched
                             toastr.success('Put successful!');
-                            pendingTrackingId = null; // Clear state to accept next shipment
+                            pendingTrackingId = null; // Clear state
+                            $('#ob-scan-label').text('Scan Item'); // Reset Label
                             
-                            // Show "Shipment Added" in Large Green Box
                             $('#msgLargeBox').css('background-color', '#e2f0ca').show();
                             $('#largeBoxText').html("Shipment Added");
                             
                             $('#actionButtons').hide();
                         } else {
-                            // Failure: Scanned wrong bin or another shipment
+                            // Failure: Scanned wrong bin
                             $('#msgLargeBox').css('background-color', '#FFBABA').show();
                             $('#largeBoxText').html(`Wrong Bin, Rescan the SHIPMENT ${pendingTrackingId}`);
-                            pendingTrackingId = null; // Force them to rescan the shipment tracking ID again
+                            pendingTrackingId = null; // Reset state
+                            $('#ob-scan-label').text('Scan Item'); // Reset Label
                         }
                         return; // Halt execution
                     }
@@ -369,12 +366,13 @@
                     if (scanDatabase[scannedValue]) {
                         const rawOutput = scanDatabase[scannedValue];
                         
-                        // === NEW CONDITION: Reached RC check ===
+                        // === RC check ===
                         if (rawOutput.includes("The shipment has reached the source RC location")) {
                             $('#msgLargeBox').css('background-color', '#FFBABA').show();
                             $('#largeBoxText').html(rawOutput);
                             $('#actionButtons').hide();
-                            return; // Stop here, do not set pendingTrackingId
+                            $('#ob-scan-label').text('Scan Item');
+                            return; 
                         }
                         
                         // Normal Put Logic
@@ -383,28 +381,27 @@
                             locationStr = rawOutput.split("|")[0].replace("Put to", "").trim();
                         }
                         
-                        // Format message text with line breaks
                         let formattedOutput = rawOutput.replace(" | ", " |<br>").replace(" and scan barcode", "<br>and scan barcode");
 
-                        // Show instruction in Large Green Box
                         $('#msgLargeBox').css('background-color', '#e2f0ca').show();
                         $('#largeBoxText').html(formattedOutput);
                         
                         $('#btnMarkFull').text(`Mark ${locationStr} as FULL`);
                         $('#actionButtons').show();
                         
-                        // Lock the state: Next scan must be the Bin location
+                        // Lock the state & Update Label
                         pendingTrackingId = scannedValue;
+                        $('#ob-scan-label').text('Scan barcode');
+
                     } else {
-                        // "Item details not found!" (Red Box)
                         $('#msgLargeBox').css('background-color', '#FFBABA').show();
                         $('#largeBoxText').html("Item details not found!");
+                        $('#ob-scan-label').text('Scan Item');
                     }
                 }
             });
         });
 
-        // Fetch JSON from the GitHub Repository
         async function fetchDatabase() {
             try {
                 const response = await fetch('database.json?time=' + new Date().getTime());
@@ -426,26 +423,28 @@
 
         // Action Button Handlers
         function handleSkip() {
-            pendingTrackingId = null; // Reset State
+            pendingTrackingId = null; 
+            $('#ob-scan-label').text('Scan Item');
             $('#actionButtons').hide();
-            // Show "Put Cancelled" in Large Green Box
+            
             $('#msgLargeBox').css('background-color', '#e2f0ca').show();
             $('#largeBoxText').html("Put Cancelled");
             $('#ob-scan-input').val('').focus();
         }
 
         function handleMarkFull() {
-            pendingTrackingId = null; // Reset State
+            pendingTrackingId = null; 
+            $('#ob-scan-label').text('Scan Item');
             $('#msgLargeBox, #actionButtons').hide();
             toastr.success('Location marked as full.');
             $('#ob-scan-input').val('').focus();
         }
 
-        // Routing & Global Controls
         function handleLogout() {
             sessionStorage.clear();
             currentFacility = "";
             pendingTrackingId = null;
+            $('#ob-scan-label').text('Scan Item');
             $('#facilityDropdown').val("");
             $('#loginForm')[0].reset();
             $('#login-message').hide();
@@ -477,6 +476,7 @@
 
             if (currentView === 'ob-put') {
                 pendingTrackingId = null;
+                $('#ob-scan-label').text('Scan Item');
                 $('#msgLargeBox, #actionButtons').hide();
                 $('#lastScanText').text('');
                 $('#ob-scan-input').val('').focus();
