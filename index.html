@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="theme-color" content="#0FA6A1">
-    <title>Hub Management System</title>
+    <title>Hub Management System - Simulation Mode</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -18,7 +18,7 @@
         .hidden { display: none !important; }
         * { box-sizing: border-box; }
 
-        /* ================= LOGIN VIEW (Classic Original) ================= */
+        /* ================= LOGIN VIEW ================= */
         #login-view { background-color: #f3f3f3; height: 100vh; overflow-y: auto; }
         .login-navbar { background-color: #2874f0; min-height: 65px; border: none; border-radius: 0; margin-bottom: 0; }
         .login-container { margin-top: 150px; }
@@ -44,7 +44,6 @@
         
         .navbar-right { display: flex; align-items: center; gap: 20px; }
         
-        /* Dropdown Styling */
         .user-dropdown-toggle { color: #222; cursor: pointer; font-size: 18px; padding: 5px; }
         .user-dropdown-menu { border-radius: 2px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border: 1px solid #ccc; margin-top: 8px; }
         .user-dropdown-menu > li.disabled > a { color: #777; cursor: default; }
@@ -69,7 +68,7 @@
         .active-view { display: block; }
         
         /* ================= THEMED COMPONENTS ================= */
-        .page-title { color: #555; font-size: 24px; font-weight: normal; margin-top: 0; padding-bottom: 15px; }
+        .page-title { color: #555; font-size: 24px; font-weight: normal; margin-top: 0; padding-bottom: 15px; display: inline-block; }
         .theme-label { font-weight: bold; color: #333; margin-bottom: 5px; display: block; font-size: 14px; }
         
         .scan-input-white { width: 100%; background-color: #fff; border: 1px solid #ccc; padding: 8px 12px; margin-bottom: 15px; outline: none; height: 38px; text-transform: uppercase; color: #333; border-radius: 3px; }
@@ -83,13 +82,25 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Output Box & Buttons */
-        .isa_error { color: #D8000C; background-color: #FFBABA; padding: 10px; margin-bottom: 10px; border-radius: 3px; font-weight: bold; display: none; font-size: 14px;}
-        
         .large-message-box { background-color: #e2f0ca; border: 1px solid #000; padding: 20px 30px; margin-bottom: 20px; display: none; min-height: 150px; }
         .large-message-text { font-size: 5rem; color: #000; line-height: 1.1; word-wrap: break-word; font-family: Roboto, Tahoma, sans-serif; }
         
         .btn-pink { background-color: #ff4081; color: white; border: none; padding: 10px 20px; border-radius: 3px; font-weight: 500; font-size: 14px; cursor: pointer; }
         .btn-pink:hover { background-color: #e91e63; }
+        
+        /* Training Mode Score UI */
+        .training-header-bar { display: flex; justify-content: space-between; align-items: center; max-width: 900px; margin-bottom: 15px;}
+        .score-board { background: white; padding: 8px 15px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #109e9a; display: flex; align-items: center; gap: 15px;}
+        .score-item { font-size: 14px; font-weight: bold; color: #555; }
+        .score-correct { color: #28a745; font-size: 16px; }
+        .score-wrong { color: #dc3545; font-size: 16px; }
+        .score-progress { color: #2874f0; font-size: 14px; background: #eef3fc; padding: 2px 8px; border-radius: 12px;}
+        
+        .summary-card { background: white; max-width: 650px; margin: 40px auto; text-align: center; padding: 40px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 6px solid #109e9a;}
+        .stat-box { flex: 1; padding: 15px; }
+        .stat-box h1 { margin: 0; font-size: 48px; font-weight: bold; }
+        .stat-box p { color: #777; margin: 5px 0 0 0; text-transform: uppercase; font-size: 12px; font-weight: bold;}
+        .action-bar { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
     </style>
 </head>
 <body>
@@ -115,7 +126,7 @@
                     </div>
                     <div class="panel panel-default">
                         <div class="box">
-                            <div id="login-headline">Login</div>
+                            <div id="login-headline">Login - Simulator</div>
                             <div id="idp-message">Enter LDAP credentials</div>
                             <div id="login-message"></div>
                             <form id="loginForm">
@@ -141,7 +152,7 @@
                 <div class="humberger" onclick="toggleSidebar()">
                     <span></span><span></span><span></span>
                 </div>
-                <label class="header-brand" onclick="navigate('landing')">Hub System</label>
+                <label class="header-brand" onclick="navigate('landing')">Hub System (Simulation)</label>
             </div>
             <div class="navbar-right">
                 
@@ -157,6 +168,7 @@
                 <select id="facilityDropdown" class="facility-select-nav" onchange="handleFacilityChange()">
                     <option value="" disabled selected>Select Facility</option>
                     <option value="CentralHub_L_MUMX">CentralHub_L_MUMX</option>
+                    <option value="Centralhub_L_YKB">Centralhub_L_YKB</option>
                     <option value="60ftroadDex_HCT_ALD">60ftroadDex_HCT_ALD</option>
                     <option value="70FeetLDP_PHU_PAT">70FeetLDP_PHU_PAT</option>
                     <option value="AlipurHub_DEL">AlipurHub_DEL</option>
@@ -177,11 +189,11 @@
                         <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Geo-Fence Dashboard</a></li>
 
                         <h5 class="side-menu">Inbound staging</h5>
-                        <li class="side-menu-item" onclick="navigate('ob-put')"><i class="fa fa-plus"></i><a href="#">Put</a></li>
+                        <li class="side-menu-item" onclick="navigate('ob-put')"><i class="fa fa-plus"></i><a href="#">Put (Training)</a></li>
                         <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Pick</a></li>
 
                         <h5 class="side-menu">Outbound staging</h5>
-                        <li class="side-menu-item" onclick="navigate('ob-put')"><i class="fa fa-plus"></i><a href="#">Put</a></li>
+                        <li class="side-menu-item" onclick="navigate('ob-put')"><i class="fa fa-plus"></i><a href="#">Put (Training)</a></li>
                         <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">OutboundPick</a></li>
                         <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">TrackItems</a></li>
                         <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">TrackStagingDetails</a></li>
@@ -232,7 +244,17 @@
                 </div>
 
                 <div id="view-ob-put" class="view-section">
-                    <h3 class="page-title">Put Item</h3>
+                    <div class="training-header-bar">
+                        <h3 class="page-title" style="margin: 0;">Put Item <span style="font-size: 14px; color: #109e9a;">[OJT Tracker Active]</span></h3>
+                        
+                        <div class="score-board">
+                            <span class="score-progress">Progress: <span id="uiProgress">0 / 0</span></span>
+                            <span class="score-item"><i class="fa fa-check-circle score-correct"></i> <span id="uiScoreCorrect">0</span></span>
+                            <span class="score-item"><i class="fa fa-times-circle score-wrong"></i> <span id="uiScoreWrong">0</span></span>
+                            <button class="btn btn-sm btn-danger" onclick="endTrainingSession()">Finish</button>
+                        </div>
+                    </div>
+
                     <div style="width: 100%; max-width: 900px;">
                         <label class="theme-label" id="ob-scan-label">Scan Item</label>
                         <input id="ob-scan-input" class="scan-input-white" autocomplete="off" type="text" style="margin-bottom: 2px;">
@@ -245,6 +267,40 @@
                         <div id="actionButtons" style="display: none;">
                             <button type="button" id="btnMarkFull" class="btn-pink" onclick="handleMarkFull()">Mark as FULL</button>
                             <button type="button" class="btn-pink" onclick="handleSkip()" style="margin-left: 5px;">Skip</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-score-summary" class="view-section">
+                    <div class="summary-card">
+                        <i class="fa fa-trophy" style="font-size: 60px; color: #ffc107; margin-bottom: 15px;"></i>
+                        <h2 style="color: #333; margin-top: 0;">Training Complete</h2>
+                        <p style="color: #666; font-size: 16px;">Employee ID: <strong id="summaryUsername">User</strong></p>
+                        
+                        <hr style="border-top: 1px solid #ddd; margin: 25px 0;">
+                        
+                        <div style="display: flex; justify-content: space-between;">
+                            <div class="stat-box">
+                                <h1 id="sumCorrect" style="color: #28a745;">0</h1>
+                                <p>Processed Correctly</p>
+                            </div>
+                            <div class="stat-box" style="border-left: 1px solid #eee; border-right: 1px solid #eee;">
+                                <h1 id="sumWrong" style="color: #dc3545;">0</h1>
+                                <p>Errors</p>
+                            </div>
+                            <div class="stat-box">
+                                <h1 id="sumSkipped" style="color: #ff9800;">0</h1>
+                                <p>Items Skipped</p>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                            <h3 style="margin: 0; color: #333; font-weight: normal;">Accuracy Rate: <span id="sumAccuracy" style="font-weight: bold; color: #109e9a; font-size: 32px;">0%</span></h3>
+                        </div>
+
+                        <div class="action-bar">
+                            <button class="btn btn-default" style="font-size: 14px; padding: 10px 20px; border-radius: 3px;" onclick="restartTraining()">Start New Batch</button>
+                            <button class="btn btn-success" style="font-size: 14px; padding: 10px 20px; border-radius: 3px;" onclick="exportCSVReport()"><i class="fa fa-download"></i> Download Report</button>
                         </div>
                     </div>
                 </div>
@@ -270,8 +326,17 @@
     <script>
         let currentFacility = "";
         let currentView = "landing";
-        let scanDatabase = {};
+        
+        // Full Master Database
+        let fullDatabase = {}; 
+        
+        // Active Training Data
+        let siteDatabase = {}; 
+        let processedShipments = new Set();
+        let totalShipmentsForSite = 0;
         let pendingTrackingId = null; 
+        
+        let trainingScore = { correct: 0, wrong: 0, skipped: 0 };
         
         toastr.options = { positionClass: "toast-bottom-center", showDuration: "300", hideDuration: "1000", timeOut: 2000 };
 
@@ -285,6 +350,7 @@
                 const savedUser = sessionStorage.getItem('hms_user');
                 if (savedUser) {
                     $('#loggedInUser').text(savedUser);
+                    $('#summaryUsername').text(savedUser);
                 }
 
                 const savedFacility = sessionStorage.getItem('hms_facility');
@@ -308,6 +374,7 @@
                         sessionStorage.setItem('hms_auth', 'true');
                         sessionStorage.setItem('hms_user', user); 
                         $('#loggedInUser').text(user); 
+                        $('#summaryUsername').text(user);
                         
                         $('#login-message').hide();
                         $('#login-view').addClass('hidden');
@@ -320,20 +387,19 @@
                 }, 600);
             });
 
-            // Two-Stage Barcode Scanner Logic (Shipment -> Bin)
+            // Scanner Logic
             $('#ob-scan-input').on('keyup', function(e) {
                 if (e.key === 'Enter') {
                     const scannedValue = $(this).val().trim().toUpperCase();
                     $(this).val(''); 
                     $('#lastScanText').text(scannedValue);
-
                     $('#msgLargeBox, #actionButtons').hide();
 
                     // ----------------------------------------------------
                     // STATE 2: Waiting for Bin Scan (Location)
                     // ----------------------------------------------------
                     if (pendingTrackingId !== null) {
-                        const rawOutput = scanDatabase[pendingTrackingId];
+                        const rawOutput = siteDatabase[pendingTrackingId];
                         let expectedLocation = "";
                         
                         if(rawOutput.includes("Put to") && rawOutput.includes("|")) {
@@ -341,41 +407,60 @@
                         }
                         
                         if (scannedValue === expectedLocation) {
-                            // Success: Bin matched
+                            // SUCCESS: Correct Bin
                             toastr.success('Put successful!');
-                            pendingTrackingId = null; // Clear state
-                            $('#ob-scan-label').text('Scan Item'); // Reset Label
+                            trainingScore.correct++; 
+                            processedShipments.add(pendingTrackingId);
+                            
+                            pendingTrackingId = null; 
+                            $('#ob-scan-label').text('Scan Item'); 
                             
                             $('#msgLargeBox').css('background-color', '#e2f0ca').show();
                             $('#largeBoxText').html("Shipment Added");
-                            
                             $('#actionButtons').hide();
                         } else {
-                            // Failure: Scanned wrong bin
+                            // FAILURE: Wrong Bin
+                            trainingScore.wrong++; 
+                            
                             $('#msgLargeBox').css('background-color', '#FFBABA').show();
                             $('#largeBoxText').html(`Wrong Bin, Rescan the SHIPMENT ${pendingTrackingId}`);
-                            pendingTrackingId = null; // Reset state
-                            $('#ob-scan-label').text('Scan Item'); // Reset Label
+                            pendingTrackingId = null; 
+                            $('#ob-scan-label').text('Scan Item'); 
                         }
-                        return; // Halt execution
+                        updateScoreUI();
+                        checkIfTrainingComplete();
+                        return;
                     }
 
                     // ----------------------------------------------------
                     // STATE 1: Waiting for Shipment Scan (Tracking ID)
                     // ----------------------------------------------------
-                    if (scanDatabase[scannedValue]) {
-                        const rawOutput = scanDatabase[scannedValue];
+                    if (siteDatabase[scannedValue]) {
                         
-                        // === RC check ===
-                        if (rawOutput.includes("The shipment has reached the source RC location")) {
+                        if (processedShipments.has(scannedValue)) {
                             $('#msgLargeBox').css('background-color', '#FFBABA').show();
+                            $('#largeBoxText').html("Shipment already processed!");
+                            return;
+                        }
+
+                        const rawOutput = siteDatabase[scannedValue];
+                        
+                        // === RC Check (Treated as Valid/Correct instantly) ===
+                        if (rawOutput.includes("The shipment has reached the source RC location")) {
+                            $('#msgLargeBox').css('background-color', '#FFBABA').show(); // Show in Red as requested
                             $('#largeBoxText').html(rawOutput);
                             $('#actionButtons').hide();
                             $('#ob-scan-label').text('Scan Item');
+                            
+                            // Mark as correct and processed
+                            trainingScore.correct++;
+                            processedShipments.add(scannedValue);
+                            updateScoreUI();
+                            checkIfTrainingComplete();
                             return; 
                         }
                         
-                        // Normal Put Logic
+                        // === Normal Put Logic ===
                         let locationStr = "Bin";
                         if(rawOutput.includes("Put to") && rawOutput.includes("|")) {
                             locationStr = rawOutput.split("|")[0].replace("Put to", "").trim();
@@ -389,13 +474,15 @@
                         $('#btnMarkFull').text(`Mark ${locationStr} as FULL`);
                         $('#actionButtons').show();
                         
-                        // Lock the state & Update Label
                         pendingTrackingId = scannedValue;
                         $('#ob-scan-label').text('Scan Barcode');
 
                     } else {
+                        // Shipment not mapped to this facility
+                        trainingScore.wrong++;
+                        updateScoreUI();
                         $('#msgLargeBox').css('background-color', '#FFBABA').show();
-                        $('#largeBoxText').html("Item details not found!");
+                        $('#largeBoxText').html("Item not found for this Facility!");
                         $('#ob-scan-label').text('Scan Item');
                     }
                 }
@@ -407,22 +494,101 @@
                 const response = await fetch('database.json?time=' + new Date().getTime());
                 if (!response.ok) throw new Error("Could not load database.json");
                 
-                scanDatabase = await response.json();
+                fullDatabase = await response.json();
                 console.log("Database successfully loaded from GitHub.");
-            } catch (error) {
-                console.error("Failed to fetch database.json from GitHub:", error);
-                toastr.error("Warning: Failed to load barcode database.");
                 
-                // Fallback DB strictly for testing offline or if fetch fails
-                scanDatabase = {
-                    "FMPC6008240197": "Put to Z3-G65 | CentralHub_L_PUNML1 and scan barcode",
-                    "FMP_RC_TEST": "The shipment has reached the source RC location. Move to RC"
+                // If facility is already selected on load, initialize data
+                if(currentFacility) { initFacilityData(); }
+                
+            } catch (error) {
+                console.error("Failed to fetch database.json", error);
+                
+                // FALLBACK NESTED DB 
+                fullDatabase = {
+                    "CentralHub_L_MUMX": {
+                        "FMPC6008240197": "Put to Z3-G65 | CentralHub_L_PUNML1 and scan barcode",
+                        "FMP_RC_TEST": "The shipment has reached the source RC location. Move to RC"
+                    },
+                    "BkcHub_MUM": {
+                        "FMPP3931198129": "Put to Z4-G83 | Satellitehub_THN and scan barcode"
+                    }
                 };
+                if(currentFacility) { initFacilityData(); }
             }
         }
 
-        // Action Button Handlers
+        function initFacilityData() {
+            siteDatabase = fullDatabase[currentFacility] || {};
+            totalShipmentsForSite = Object.keys(siteDatabase).length;
+            processedShipments.clear();
+            trainingScore = { correct: 0, wrong: 0, skipped: 0 };
+            updateScoreUI();
+        }
+
+        // --- Gamification & UI Updates ---
+        function updateScoreUI() {
+            $('#uiScoreCorrect').text(trainingScore.correct);
+            $('#uiScoreWrong').text(trainingScore.wrong);
+            $('#uiProgress').text(`${processedShipments.size} / ${totalShipmentsForSite}`);
+        }
+
+        function checkIfTrainingComplete() {
+            if (totalShipmentsForSite > 0 && processedShipments.size >= totalShipmentsForSite) {
+                setTimeout(() => {
+                    toastr.success('All shipments processed!');
+                    endTrainingSession();
+                }, 1000); // 1 sec delay so they can read the last message
+            }
+        }
+
+        function endTrainingSession() {
+            let totalAttempts = trainingScore.correct + trainingScore.wrong;
+            let accuracy = totalAttempts > 0 ? Math.round((trainingScore.correct / totalAttempts) * 100) : 0;
+
+            $('#sumCorrect').text(trainingScore.correct);
+            $('#sumWrong').text(trainingScore.wrong);
+            $('#sumSkipped').text(trainingScore.skipped);
+            $('#sumAccuracy').text(accuracy + "%");
+
+            if (accuracy >= 90) { $('#sumAccuracy').css('color', '#28a745'); } 
+            else if (accuracy >= 70) { $('#sumAccuracy').css('color', '#ff9800'); } 
+            else { $('#sumAccuracy').css('color', '#dc3545'); } 
+
+            navigate('score-summary');
+        }
+
+        function restartTraining() {
+            initFacilityData();
+            pendingTrackingId = null;
+            $('#ob-scan-label').text('Scan Item');
+            navigate('ob-put');
+        }
+
+        function exportCSVReport() {
+            const user = sessionStorage.getItem('hms_user') || 'Unknown_User';
+            const dateStr = new Date().toLocaleString().replace(/,/g, '');
+            let totalAttempts = trainingScore.correct + trainingScore.wrong;
+            let accuracy = totalAttempts > 0 ? Math.round((trainingScore.correct / totalAttempts) * 100) + '%' : '0%';
+
+            let csvContent = "Employee ID,Facility,Timestamp,Correct,Errors,Skipped,Accuracy\n";
+            csvContent += `${user},${currentFacility},${dateStr},${trainingScore.correct},${trainingScore.wrong},${trainingScore.skipped},${accuracy}\n`;
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `HMS_Training_Report_${user}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toastr.success('Report successfully downloaded.');
+        }
+
+        // --- Standard Action Button Handlers ---
         function handleSkip() {
+            if(pendingTrackingId) {
+                trainingScore.skipped++; 
+                processedShipments.add(pendingTrackingId); // Count as processed so they can finish
+            }
             pendingTrackingId = null; 
             $('#ob-scan-label').text('Scan Item');
             $('#actionButtons').hide();
@@ -430,6 +596,9 @@
             $('#msgLargeBox').css('background-color', '#e2f0ca').show();
             $('#largeBoxText').html("Put Cancelled");
             $('#ob-scan-input').val('').focus();
+            
+            updateScoreUI();
+            checkIfTrainingComplete();
         }
 
         function handleMarkFull() {
@@ -440,6 +609,7 @@
             $('#ob-scan-input').val('').focus();
         }
 
+        // --- Routing & Global Controls ---
         function handleLogout() {
             sessionStorage.clear();
             currentFacility = "";
@@ -462,6 +632,7 @@
         function handleFacilityChange() {
             currentFacility = $('#facilityDropdown').val();
             sessionStorage.setItem('hms_facility', currentFacility);
+            initFacilityData(); // Load data specific to this facility
             $('#sidebar-overlay').hide();
         }
 
