@@ -130,10 +130,10 @@
                             <div id="idp-message">Enter LDAP credentials</div>
                             <div id="login-message"></div>
                             <form id="loginForm">
-                                <label class="input-label">User Name</label>
-                                <input type="text" id="username" class="span-whole" required autocomplete="off">
+                                <label class="input-label">Casper ID</label>
+                                <input type="text" id="username" class="span-whole" placeholder="Enter Casper ID" required autocomplete="off">
                                 <label class="input-label">Password</label>
-                                <input type="password" id="password" class="span-whole" required>
+                                <input type="password" id="password" class="span-whole" placeholder="Enter Password" required>
                                 <div style="text-align: center; margin-top: 10px;">
                                     <button id="loginSubmit" type="submit" class="login-submit ladda-button" data-style="zoom-in"><span class="ladda-label">Submit</span></button>
                                 </div>
@@ -275,7 +275,8 @@
                     <div class="summary-card">
                         <i class="fa fa-trophy" style="font-size: 60px; color: #ffc107; margin-bottom: 15px;"></i>
                         <h2 style="color: #333; margin-top: 0;">Training Complete</h2>
-                        <p style="color: #666; font-size: 16px;">Employee ID: <strong id="summaryUsername">User</strong></p>
+                        <p style="color: #666; font-size: 16px;">Casper ID: <strong id="summaryUsername">User</strong></p>
+                        <p style="color: #109e9a; font-size: 14px; margin-top: 5px;"><i class="fa fa-clock-o"></i> Time Taken: <strong id="sumTimeTaken">0m 0s</strong></p>
                         
                         <hr style="border-top: 1px solid #ddd; margin: 25px 0;">
                         
@@ -300,7 +301,8 @@
 
                         <div class="action-bar">
                             <button class="btn btn-default" style="font-size: 14px; padding: 10px 20px; border-radius: 3px;" onclick="restartTraining()">Start New Batch</button>
-                            <button class="btn btn-success" style="font-size: 14px; padding: 10px 20px; border-radius: 3px;" onclick="exportCSVReport()"><i class="fa fa-download"></i> Download Report</button>
+                            <button class="btn btn-success" style="font-size: 14px; padding: 10px 20px; border-radius: 3px;" onclick="exportCSVReport()"><i class="fa fa-download"></i> Download Local CSV</button>
+                            <button id="btnSubmitDb" class="btn btn-info" style="font-size: 14px; padding: 10px 20px; border-radius: 3px;" onclick="submitReportToGoogleSheets()"><i class="fa fa-cloud-upload"></i> Submit to Database</button>
                         </div>
                     </div>
                 </div>
@@ -324,19 +326,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Ladda/1.0.6/ladda.min.js"></script>
 
     <script>
+        // =========================================================================
+        // GOOGLE SHEETS WEBHOOK URL:
+        // Paste the URL you got from Google Apps Script deployment below!
+        // =========================================================================
+        const GOOGLE_SHEET_WEBHOOK_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
         let currentFacility = "";
         let currentView = "landing";
         
-        // Full Master Database
         let fullDatabase = {}; 
-        
-        // Active Training Data
         let siteDatabase = {}; 
         let processedShipments = new Set();
         let totalShipmentsForSite = 0;
         let pendingTrackingId = null; 
         
         let trainingScore = { correct: 0, wrong: 0, skipped: 0 };
+        let trainingStartTime = null;
+        let trainingEndTime = null;
         
         toastr.options = { positionClass: "toast-bottom-center", showDuration: "300", hideDuration: "1000", timeOut: 2000 };
 
@@ -367,10 +374,10 @@
 
                 setTimeout(function() {
                     l.stop();
-                    const user = $('#username').val();
+                    const user = $('#username').val().trim();
                     const pass = $('#password').val();
 
-                    if (user && pass) { 
+                    if (user !== "" && pass === 'User@123') { 
                         sessionStorage.setItem('hms_auth', 'true');
                         sessionStorage.setItem('hms_user', user); 
                         $('#loggedInUser').text(user); 
@@ -381,7 +388,7 @@
                         $('#app-view').removeClass('hidden');
                         navigate('landing');
                     } else {
-                        $('#login-message').text('Invalid credentials').show();
+                        $('#login-message').text('Invalid Casper ID or Password.').show();
                         toastr.error('Invalid credentials provided.');
                     }
                 }, 600);
@@ -395,9 +402,6 @@
                     $('#lastScanText').text(scannedValue);
                     $('#msgLargeBox, #actionButtons').hide();
 
-                    // ----------------------------------------------------
-                    // STATE 2: Waiting for Bin Scan (Location)
-                    // ----------------------------------------------------
                     if (pendingTrackingId !== null) {
                         const rawOutput = siteDatabase[pendingTrackingId];
                         let expectedLocation = "";
@@ -407,7 +411,6 @@
                         }
                         
                         if (scannedValue === expectedLocation) {
-                            // SUCCESS: Correct Bin
                             toastr.success('Put successful!');
                             trainingScore.correct++; 
                             processedShipments.add(pendingTrackingId);
@@ -419,9 +422,7 @@
                             $('#largeBoxText').html("Shipment Added");
                             $('#actionButtons').hide();
                         } else {
-                            // FAILURE: Wrong Bin
                             trainingScore.wrong++; 
-                            
                             $('#msgLargeBox').css('background-color', '#FFBABA').show();
                             $('#largeBoxText').html(`Wrong Bin, Rescan the SHIPMENT ${pendingTrackingId}`);
                             pendingTrackingId = null; 
@@ -432,9 +433,6 @@
                         return;
                     }
 
-                    // ----------------------------------------------------
-                    // STATE 1: Waiting for Shipment Scan (Tracking ID)
-                    // ----------------------------------------------------
                     if (siteDatabase[scannedValue]) {
                         
                         if (processedShipments.has(scannedValue)) {
@@ -445,14 +443,12 @@
 
                         const rawOutput = siteDatabase[scannedValue];
                         
-                        // === RC Check (Treated as Valid/Correct instantly) ===
                         if (rawOutput.includes("The shipment has reached the source RC location")) {
-                            $('#msgLargeBox').css('background-color', '#FFBABA').show(); // Show in Red as requested
+                            $('#msgLargeBox').css('background-color', '#FFBABA').show(); 
                             $('#largeBoxText').html(rawOutput);
                             $('#actionButtons').hide();
                             $('#ob-scan-label').text('Scan Item');
                             
-                            // Mark as correct and processed
                             trainingScore.correct++;
                             processedShipments.add(scannedValue);
                             updateScoreUI();
@@ -460,7 +456,6 @@
                             return; 
                         }
                         
-                        // === Normal Put Logic ===
                         let locationStr = "Bin";
                         if(rawOutput.includes("Put to") && rawOutput.includes("|")) {
                             locationStr = rawOutput.split("|")[0].replace("Put to", "").trim();
@@ -478,11 +473,10 @@
                         $('#ob-scan-label').text('Scan Barcode');
 
                     } else {
-                        // Shipment not mapped to this facility
                         trainingScore.wrong++;
                         updateScoreUI();
                         $('#msgLargeBox').css('background-color', '#FFBABA').show();
-                        $('#largeBoxText').html("Item not found for this Facility!");
+                        $('#largeBoxText').html("Item not found"); 
                         $('#ob-scan-label').text('Scan Item');
                     }
                 }
@@ -493,24 +487,39 @@
             try {
                 const response = await fetch('database.json?time=' + new Date().getTime());
                 if (!response.ok) throw new Error("Could not load database.json");
-                
                 fullDatabase = await response.json();
                 console.log("Database successfully loaded from GitHub.");
-                
-                // If facility is already selected on load, initialize data
                 if(currentFacility) { initFacilityData(); }
-                
             } catch (error) {
                 console.error("Failed to fetch database.json", error);
-                
-                // FALLBACK NESTED DB 
+                // Fallback nested DB with the exact requested locations
                 fullDatabase = {
                     "CentralHub_L_MUMX": {
-                        "FMPC6008240197": "Put to Z3-G65 | CentralHub_L_PUNML1 and scan barcode",
-                        "FMP_RC_TEST": "The shipment has reached the source RC location. Move to RC"
+                        "FMPP3931198129": "Put to Z4-G83 | Satellitehub_THN and scan barcode",
+                        "FMPP3960039015": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
+                        "FMPC6044877050": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
+                        "FMPP3959383430": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
+                        "FMPP3960070987": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
+                        "FMPP3959398614": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
+                        "FMPP3959397834": "Put to Z3-G68 | CentralHub_L_IDRL1 and scan barcode",
+                        "FMPP3958846635": "Put to Z3-G58 | Satellitehub_SEWR and scan barcode",
+                        "FMPC6042875519": "Put to Z3-G58 | Satellitehub_SEWR and scan barcode",
+                        "FMPP3960058955": "Put to Z3-G59 | Satellitehub_PNV and scan barcode",
+                        "FMPP3960064434": "Put to Z3-G59 | Satellitehub_PNV and scan barcode"
                     },
-                    "BkcHub_MUM": {
-                        "FMPP3931198129": "Put to Z4-G83 | Satellitehub_THN and scan barcode"
+                    "Centralhub_L_YKB": {
+                        "FMPC6008140198": "Put to L1-B3 | Satellitehub_THN and scan barcode",
+                        "FMPC6008140199": "Put to L1-C3 | SatelliteHub_VRR and scan barcode",
+                        "FMPC6008140200": "Put to L1-A1 | CentralHub_L_PUNML1 and scan barcode",
+                        "FMPC6008140201": "Put to L1-B3 | Satellitehub_THN and scan barcode",
+                        "FMPC6008140202": "Put to L1-C3 | SatelliteHub_VRR and scan barcode",
+                        "FMPC6008140203": "Put to L1-G11 | SatelliteHub_VRR and scan barcode",
+                        "FMPC6008140204": "Put to L1-H1 | CentralHub_L_IDRL1 and scan barcode",
+                        "FMPC6008140205": "Put to L1-H2 | Satellitehub_SEWR and scan barcode",
+                        "FMPC6008140206": "Put to L1-A1 | CentralHub_L_PUNML1 and scan barcode",
+                        "FMPC6008140207": "Put to L1-B3 | Satellitehub_THN and scan barcode",
+                        "FMPC6008140208": "Put to L1-C3 | SatelliteHub_VRR and scan barcode",
+                        "FMPC6008140209": "The shipment has reached the source RC location. Move to RC"
                     }
                 };
                 if(currentFacility) { initFacilityData(); }
@@ -522,10 +531,13 @@
             totalShipmentsForSite = Object.keys(siteDatabase).length;
             processedShipments.clear();
             trainingScore = { correct: 0, wrong: 0, skipped: 0 };
+            trainingStartTime = new Date(); 
+            
+            $('#btnSubmitDb').html('<i class="fa fa-cloud-upload"></i> Submit to Database').prop('disabled', false);
+
             updateScoreUI();
         }
 
-        // --- Gamification & UI Updates ---
         function updateScoreUI() {
             $('#uiScoreCorrect').text(trainingScore.correct);
             $('#uiScoreWrong').text(trainingScore.wrong);
@@ -537,11 +549,21 @@
                 setTimeout(() => {
                     toastr.success('All shipments processed!');
                     endTrainingSession();
-                }, 1000); // 1 sec delay so they can read the last message
+                }, 1000); 
             }
+        }
+        
+        function formatTimeDiff(start, end) {
+            if(!start || !end) return "0m 0s";
+            let diffMs = end - start;
+            let diffMins = Math.floor(diffMs / 60000);
+            let diffSecs = Math.floor((diffMs % 60000) / 1000);
+            return `${diffMins}m ${diffSecs}s`;
         }
 
         function endTrainingSession() {
+            trainingEndTime = new Date();
+            
             let totalAttempts = trainingScore.correct + trainingScore.wrong;
             let accuracy = totalAttempts > 0 ? Math.round((trainingScore.correct / totalAttempts) * 100) : 0;
 
@@ -549,29 +571,102 @@
             $('#sumWrong').text(trainingScore.wrong);
             $('#sumSkipped').text(trainingScore.skipped);
             $('#sumAccuracy').text(accuracy + "%");
+            $('#sumTimeTaken').text(formatTimeDiff(trainingStartTime, trainingEndTime));
 
             if (accuracy >= 90) { $('#sumAccuracy').css('color', '#28a745'); } 
             else if (accuracy >= 70) { $('#sumAccuracy').css('color', '#ff9800'); } 
             else { $('#sumAccuracy').css('color', '#dc3545'); } 
 
             navigate('score-summary');
+            submitReportToGoogleSheets(); // Auto-submit when finished
         }
 
-        function restartTraining() {
-            initFacilityData();
-            pendingTrackingId = null;
-            $('#ob-scan-label').text('Scan Item');
-            navigate('ob-put');
-        }
+        // ====================================================
+        // SEND DATA TO GOOGLE SHEETS (SECURE HIDDEN FORM METHOD)
+        // ====================================================
+        function submitReportToGoogleSheets() {
+            if(GOOGLE_SHEET_WEBHOOK_URL === "https://script.google.com/a/macros/flipkart.com/s/AKfycby1yfjVYspypKifxU-MGUZnOpUoqWCN05-gOeLgnvZdw7JJ5OMfklIsJBJlqKO1owEJ6A/exec" || GOOGLE_SHEET_WEBHOOK_URL === "") {
+                toastr.warning('Webhook URL not set up yet. See code comments.');
+                return;
+            }
 
-        function exportCSVReport() {
+            const btn = document.getElementById("btnSubmitDb");
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Submitting...';
+            btn.disabled = true;
+
             const user = sessionStorage.getItem('hms_user') || 'Unknown_User';
-            const dateStr = new Date().toLocaleString().replace(/,/g, '');
+            const startStr = trainingStartTime ? trainingStartTime.toLocaleString().replace(/,/g, '') : 'N/A';
+            const endStr = trainingEndTime ? trainingEndTime.toLocaleString().replace(/,/g, '') : 'N/A';
+            const timeTaken = formatTimeDiff(trainingStartTime, trainingEndTime);
+            
             let totalAttempts = trainingScore.correct + trainingScore.wrong;
             let accuracy = totalAttempts > 0 ? Math.round((trainingScore.correct / totalAttempts) * 100) + '%' : '0%';
 
-            let csvContent = "Employee ID,Facility,Timestamp,Correct,Errors,Skipped,Accuracy\n";
-            csvContent += `${user},${currentFacility},${dateStr},${trainingScore.correct},${trainingScore.wrong},${trainingScore.skipped},${accuracy}\n`;
+            // 1. Create a hidden iframe
+            let iframeName = "hidden_iframe_" + new Date().getTime();
+            let iframe = document.createElement("iframe");
+            iframe.name = iframeName;
+            iframe.style.display = "none";
+            document.body.appendChild(iframe);
+
+            // 2. Create a hidden form that targets the iframe
+            let form = document.createElement("form");
+            form.method = "POST";
+            form.action = GOOGLE_SHEET_WEBHOOK_URL;
+            form.target = iframeName;
+            form.style.display = "none";
+
+            // 3. Map our data
+            const payload = {
+                employeeId: user,
+                facility: currentFacility,
+                startTime: startStr,
+                finishTime: endStr,
+                timeTaken: timeTaken,
+                correct: trainingScore.correct,
+                errors: trainingScore.wrong,
+                skipped: trainingScore.skipped,
+                accuracy: accuracy
+            };
+
+            // 4. Create hidden inputs for each piece of data
+            for (let key in payload) {
+                let input = document.createElement("input");
+                input.type = "hidden";
+                input.name = key;
+                input.value = payload[key];
+                form.appendChild(input);
+            }
+            document.body.appendChild(form);
+
+            // 5. When the iframe loads, the blind POST is finished
+            iframe.onload = function() {
+                toastr.success('Training Data Successfully Saved!');
+                btn.innerHTML = '<i class="fa fa-check"></i> Saved to Database';
+                
+                // Cleanup the invisible elements
+                setTimeout(() => {
+                    document.body.removeChild(form);
+                    document.body.removeChild(iframe);
+                }, 1000);
+            };
+
+            // 6. Submit the form
+            form.submit();
+        }
+
+        // Keep local CSV download just in case they need a backup
+        function exportCSVReport() {
+            const user = sessionStorage.getItem('hms_user') || 'Unknown_User';
+            const startStr = trainingStartTime ? trainingStartTime.toLocaleString().replace(/,/g, '') : 'N/A';
+            const endStr = trainingEndTime ? trainingEndTime.toLocaleString().replace(/,/g, '') : 'N/A';
+            const timeTaken = formatTimeDiff(trainingStartTime, trainingEndTime);
+            
+            let totalAttempts = trainingScore.correct + trainingScore.wrong;
+            let accuracy = totalAttempts > 0 ? Math.round((trainingScore.correct / totalAttempts) * 100) + '%' : '0%';
+
+            let csvContent = "Casper ID,Facility,Start Time,Finish Time,Time Taken,Correct,Errors,Skipped,Accuracy\n";
+            csvContent += `${user},${currentFacility},${startStr},${endStr},${timeTaken},${trainingScore.correct},${trainingScore.wrong},${trainingScore.skipped},${accuracy}\n`;
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
@@ -583,11 +678,18 @@
             toastr.success('Report successfully downloaded.');
         }
 
+        function restartTraining() {
+            initFacilityData();
+            pendingTrackingId = null;
+            $('#ob-scan-label').text('Scan Item');
+            navigate('ob-put');
+        }
+
         // --- Standard Action Button Handlers ---
         function handleSkip() {
             if(pendingTrackingId) {
                 trainingScore.skipped++; 
-                processedShipments.add(pendingTrackingId); // Count as processed so they can finish
+                processedShipments.add(pendingTrackingId); 
             }
             pendingTrackingId = null; 
             $('#ob-scan-label').text('Scan Item');
@@ -632,7 +734,7 @@
         function handleFacilityChange() {
             currentFacility = $('#facilityDropdown').val();
             sessionStorage.setItem('hms_facility', currentFacility);
-            initFacilityData(); // Load data specific to this facility
+            initFacilityData(); 
             $('#sidebar-overlay').hide();
         }
 
@@ -651,6 +753,8 @@
                 $('#msgLargeBox, #actionButtons').hide();
                 $('#lastScanText').text('');
                 $('#ob-scan-input').val('').focus();
+                
+                if(!trainingStartTime) { initFacilityData(); }
             } else if (currentView === 'handover-rc') {
                 $('#rc-scan-input').val('').focus();
             }
