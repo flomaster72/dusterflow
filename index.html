@@ -22,7 +22,7 @@
         #login-view { background-color: #f3f3f3; height: 100vh; overflow-y: auto; }
         .login-navbar { background-color: #2874f0; min-height: 65px; border: none; border-radius: 0; margin-bottom: 0; }
         .login-container { margin-top: 150px; }
-        .box { margin: 10px auto 30px; width: 50%; }
+        .box { margin: 10px auto 30px; width: 50%; max-width: 400px; }
         .common-text { font-family: Tahoma, Verdana, sans-serif; }
         .input-label { font-weight: normal; margin-bottom: 5px; display: block; }
         .span-whole { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; outline: none; border-radius: 3px; }
@@ -53,7 +53,7 @@
         .facility-select-nav option { color: black; background: white; }
         
         .app-container { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
-        #side_wrapper { width: 250px; background-color: #2f4050; transition: width 0.3s; flex-shrink: 0; display: flex; flex-direction: column; position: relative; z-index: 5; }
+        #side_wrapper { width: 250px; background-color: #2f4050; transition: left 0.3s, width 0.3s; flex-shrink: 0; display: flex; flex-direction: column; position: relative; z-index: 5; }
         #side_wrapper.collapsed { width: 0; border: none; }
         .side-bar { flex-grow: 1; overflow-y: auto; color: #a7b1c2; padding-bottom: 20px; }
         .side-menu { padding: 10px 15px; margin: 0; background: #293846; font-size: 14px; font-weight: bold; color: white; border-top: 1px solid #2f4050; }
@@ -74,7 +74,7 @@
         .scan-input-white { width: 100%; background-color: #fff; border: 1px solid #ccc; padding: 8px 12px; margin-bottom: 15px; outline: none; height: 38px; text-transform: uppercase; color: #333; border-radius: 3px; }
         .scan-input-white:focus { border-color: #109e9a; box-shadow: 0 0 4px rgba(16,158,154,0.5); }
         
-        .dropdown-teal { width: 250px; background-color: #109e9a; color: white; border: none; padding: 8px 12px; border-radius: 3px; outline: none; appearance: none; -webkit-appearance: none; height: 38px; background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 5px center; cursor: pointer; font-size: 14px;}
+        .dropdown-teal { width: 100%; max-width: 250px; background-color: #109e9a; color: white; border: none; padding: 8px 12px; border-radius: 3px; outline: none; appearance: none; -webkit-appearance: none; height: 38px; background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 5px center; cursor: pointer; font-size: 14px;}
         .dropdown-teal option { color: black; background: white; }
 
         .spinner-container { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); display: none; }
@@ -98,7 +98,67 @@
         .stat-box { flex: 1; padding: 15px; }
         .stat-box h1 { margin: 0; font-size: 48px; font-weight: bold; }
         .stat-box p { color: #777; margin: 5px 0 0 0; text-transform: uppercase; font-size: 12px; font-weight: bold;}
-        .action-bar { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+        .action-bar { display: flex; justify-content: center; gap: 15px; margin-top: 30px; flex-wrap: wrap; }
+
+        /* ================= MOBILE RESPONSIVENESS ================= */
+        @media (max-width: 768px) {
+            .box { width: 90%; }
+            .login-container { margin-top: 80px; }
+            
+            /* Navbar Stacking */
+            .navbar-new { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                padding: 12px 15px; 
+                height: auto; 
+                gap: 15px; 
+            }
+            .navbar-left { 
+                width: 100%; 
+            }
+            .navbar-right { 
+                width: 100%; 
+                justify-content: space-between; 
+            }
+            .facility-select-nav { 
+                width: 100%; 
+                max-width: none; 
+                flex-grow: 1; 
+                margin-left: 15px;
+            }
+
+            /* Absolute Sidebar Overlay */
+            #side_wrapper { 
+                position: absolute; 
+                height: 100%; 
+                z-index: 1000; 
+                left: 0; 
+                top: 0; 
+                box-shadow: 2px 0 10px rgba(0,0,0,0.3); 
+            }
+            #side_wrapper.collapsed { 
+                left: -250px; /* Slide off screen */
+                width: 250px; /* Maintain width so it slides in properly */
+                box-shadow: none;
+            }
+            
+            .main-content { padding: 15px 20px; }
+            
+            /* Scale Down Elements */
+            .large-message-text { font-size: 2.5rem; }
+            .trainer-stats { flex-direction: column; gap: 10px; }
+            
+            /* Stat Summary Box Stacking */
+            #view-score-summary .stat-box { 
+                border-left: none !important; 
+                border-right: none !important; 
+                border-bottom: 1px solid #eee; 
+            }
+            #view-score-summary > div > div:nth-child(4) { 
+                flex-direction: column; 
+                gap: 5px; 
+            }
+        }
     </style>
 </head>
 <body>
@@ -359,7 +419,6 @@
     <script>
         // =========================================================================
         // GOOGLE SHEETS WEBHOOK URL:
-        // Paste the URL you got from Google Apps Script deployment below!
         // =========================================================================
         const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/a/macros/flipkart.com/s/AKfycby1yfjVYspypKifxU-MGUZnOpUoqWCN05-gOeLgnvZdw7JJ5OMfklIsJBJlqKO1owEJ6A/exec";
 
@@ -379,6 +438,12 @@
         toastr.options = { positionClass: "toast-bottom-center", showDuration: "300", hideDuration: "1000", timeOut: 2000 };
 
         $(document).ready(function() {
+            
+            // Auto collapse sidebar on mobile devices on load
+            if ($(window).width() < 768) {
+                $('#side_wrapper').addClass('collapsed');
+            }
+
             fetchDatabase();
 
             if (sessionStorage.getItem('hms_auth') === 'true') {
@@ -525,6 +590,7 @@
                 if(currentFacility) { initFacilityData(); }
             } catch (error) {
                 console.error("Failed to fetch database.json", error);
+                // Fallback nested DB with the exact requested locations
                 fullDatabase = {
                     "CentralHub_L_MUMX": {
                         "FMPP3931198129": "Put to Z4-G83 | Satellitehub_THN and scan barcode",
@@ -754,6 +820,12 @@
                 toastr.warning("Please select a facility first.");
                 return;
             }
+            
+            // If on mobile, close sidebar after clicking a menu item
+            if ($(window).width() < 768) {
+                $('#side_wrapper').addClass('collapsed');
+            }
+
             currentView = viewName;
             $('.view-section').removeClass('active-view');
             $('#view-' + currentView).addClass('active-view');
