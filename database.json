@@ -1,16 +1,22 @@
 {
   "CentralHub_L_MUMX": {
-    "FMPP3931198129": "Put to Z4-G83 | Satellitehub_THN and scan barcode",
-    "FMPP3960039015": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
-    "FMPC6044877050": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
-    "FMPP3959383430": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
-    "FMPP3960070987": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
-    "FMPP3959398614": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
-    "FMPP3959397834": "Put to Z3-G68 | CentralHub_L_IDRL1 and scan barcode",
-    "FMPP3958846635": "Put to Z3-G58 | Satellitehub_SEWR and scan barcode",
-    "FMPC6042875519": "Put to Z3-G58 | Satellitehub_SEWR and scan barcode",
-    "FMPP3960058955": "Put to Z3-G59 | Satellitehub_PNV and scan barcode",
-    "FMPP3960064434": "Put to Z3-G59 | Satellitehub_PNV and scan barcode"
+    "FMPP4034972073": "Put to Z4-G83 | Satellitehub_THN and scan barcode",
+    "FMPP4034969664": "Put to Z4-G83 | Satellitehub_THN and scan barcode",
+    "FMPP4035108634": "Put to Z4-G83 | Satellitehub_THN and scan barcode",
+    "FMPP4035011651": "Put to Z4-G83 | Satellitehub_THN and scan barcode",
+    "FMPP4035011068": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
+    "FMPP4035005890": "Put to Z3-G53 | SatelliteHub_VRR and scan barcode",
+    "FMPP4034971314": "Put to Z3-G59 | Satellitehub_PNV and scan barcode",
+    "FMPP4034969174": "Put to Z3-G59 | Satellitehub_PNV and scan barcode",
+    "FMPP4035095537": "Put to Z3-G59 | Satellitehub_PNV and scan barcode",
+    "FMPP4035127559": "The shipment has reached the source RC location. Move to RC",
+    "FMPC6137700501": "Put to Z3-G68 | CentralHub_L_IDRL1 and scan barcode",
+    "FMPP4035103626": "The shipment has reached the source RC location. Move to RC",
+    "FMPC6137648107": "Put to Z3-G68 | CentralHub_L_IDRL1 and scan barcode",
+    "FMPP4035004718": "The shipment has reached the source RC location. Move to RC",
+    "FMPC6137556633": "Put to Z3-G58 | Satellitehub_SEWR and scan barcode",
+    "FMPP4035263714": "The shipment has reached the source RC location. Move to RC",
+    "FMPP4035258254": "Put to Z3-G58 | Satellitehub_SEWR and scan barcode"
   },
   "Centralhub_L_YKB": {
     "FMPC6008140198": "Put to L1-B3 | Satellitehub_THN and scan barcode",
