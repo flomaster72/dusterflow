@@ -130,6 +130,7 @@
 </head>
 <body>
 
+    <!-- ================= LOGIN VIEW ================= -->
     <div id="login-view">
         <nav class="navbar login-navbar navbar-fixed-top">
             <div class="container-fluid">
@@ -170,8 +171,10 @@
         </div>
     </div>
 
+    <!-- ================= APP VIEW ================= -->
     <div id="app-view" class="hidden">
         
+        <!-- Main Navbar -->
         <nav class="navbar-new">
             <div class="navbar-left">
                 <div class="humberger" onclick="toggleSidebar()">
@@ -218,6 +221,7 @@
         </nav>
 
         <div class="app-container">
+            <!-- Sidebar -->
             <div id="side_wrapper" class="collapsed">
                 <div class="side-bar">
                     <ul class="list-unstyled">
@@ -258,17 +262,20 @@
                         <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Shelf Receive Shipment</a></li>
                         <li class="side-menu-item" onclick="navigate('handover-rc')"><i class="fa fa-plus"></i><a href="#">Handover to RC</a></li>
                         
+                        <!-- SECRET ADMIN MENU -->
                         <h5 class="side-menu" style="margin-top: 30px; background: #1c2732; border-top: 1px solid #111;">System Admin</h5>
                         <li class="side-menu-item" onclick="navigate('trainer-portal')"><i class="fa fa-lock" style="color:#666;"></i><a href="#" style="color:#aaa;">Trainer Portal</a></li>
                     </ul>
                 </div>
             </div>
 
+            <!-- Overlay for when no facility is selected -->
             <div id="sidebar-overlay" class="side-bar-overlay">
                 <span>Please select Facility first to perform any operations.</span>
             </div>
 
             <div class="main-content">
+                <!-- A. Landing View -->
                 <div id="view-landing" class="view-section active-view">
                     <div style="max-width: 600px;">
                         <label class="theme-label">Scan Station Barcode</label>
@@ -286,6 +293,7 @@
                     </div>
                 </div>
 
+                <!-- B. OB Put View -->
                 <div id="view-ob-put" class="view-section">
                     <div class="training-header-bar">
                         <h3 class="page-title" style="margin: 0;">Put Item</h3>
@@ -307,6 +315,7 @@
                     </div>
                 </div>
                 
+                <!-- C. Trainer Portal View -->
                 <div id="view-trainer-portal" class="view-section">
                     <h3 class="page-title">Trainer Portal</h3>
                     
@@ -345,6 +354,7 @@
                     </div>
                 </div>
 
+                <!-- D. End Session Summary Screen -->
                 <div id="view-score-summary" class="view-section">
                     <div class="summary-card">
                         <i class="fa fa-check-circle" style="font-size: 60px; color: #28a745; margin-bottom: 15px;"></i>
@@ -373,13 +383,16 @@
                             <h3 style="margin: 0; color: #333; font-weight: normal;">Accuracy Rate: <span id="sumAccuracy" style="font-weight: bold; color: #109e9a; font-size: 32px;">0%</span></h3>
                         </div>
 
+                        <div id="dbSyncStatus" style="margin-top: 15px; font-size: 14px; font-weight: bold; color: #2874f0;">
+                            <i class="fa fa-spinner fa-spin"></i> Saving to Database...
+                        </div>
                         <div class="action-bar">
                             <button class="btn btn-default" style="font-size: 14px; padding: 10px 20px; border-radius: 3px;" onclick="restartTraining()">Start New Trainee</button>
-                            <button id="btnSubmitDb" class="btn btn-info" style="font-size: 14px; padding: 10px 20px; border-radius: 3px;" onclick="submitReportToGoogleSheets()"><i class="fa fa-cloud-upload"></i> Submit to Database</button>
                         </div>
                     </div>
                 </div>
 
+                <!-- E. Handover to RC View -->
                 <div id="view-handover-rc" class="view-section">
                     <h3 class="page-title">Handover to RC</h3>
                     <div style="width: 100%; max-width: 600px;">
@@ -392,6 +405,7 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -400,7 +414,7 @@
 
     <script>
         // =========================================================================
-        // GOOGLE SHEETS WEBHOOK URL: UPDATED
+        // GOOGLE SHEETS WEBHOOK URL
         // =========================================================================
         const GOOGLE_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwqx155rJjczmaFRvsb47D6seTg65gF14xKFG1W88twRNTdg9m6713SHxkw6bC4uZsM/exec";
 
@@ -726,7 +740,6 @@
             trainingScore = { correct: 0, wrong: 0, skipped: 0 };
             trainingStartTime = new Date(); 
             
-            $('#btnSubmitDb').html('<i class="fa fa-cloud-upload"></i> Submit to Database').prop('disabled', false);
             updateScoreUI();
         }
 
@@ -783,6 +796,7 @@
             else { $('#sumAccuracy').css('color', '#dc3545'); } 
 
             navigate('score-summary');
+            submitReportToGoogleSheets();
         }
 
         function submitReportToGoogleSheets() {
@@ -845,7 +859,6 @@
 
             form.submit();
         }
-
 
         function restartTraining() {
             handleLogout();
