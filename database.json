@@ -96,18 +96,9 @@
     "FMPP4044169237": "Put to L1K16 | CentralHub_L_RAI1 and scan barcode",
     "FMPC6150591353": "Put to L1K16 | CentralHub_L_RAI1 and scan barcode",
     "FMPC6151299404": "Put to L1K16 | CentralHub_L_RAI1 and scan barcode",
-    "FMPC6148297151": "Put to L1K16 | CentralHub_L_RAI1 and scan barcode",
-    "FMPP4042232139": "Put to L1K11 | CentralHub_L_JLRSF1 and scan barcode",
-    "FMPP4042225266": "Put to L1K11 | CentralHub_L_JLRSF1 and scan barcode",
-    "FMPC6148319024": "Put to L1K16 | CentralHub_L_RAI1 and scan barcode",
-    "FMPC6148303444": "Put to L1A13 | Satellitehub_KOR and scan barcode",
-    "FMPC6148376352": "Put to L1K11 | CentralHub_L_JLRSF1 and scan barcode",
-    "FMPP4042284350": "Put to L1K11 | CentralHub_L_JLRSF1 and scan barcode",
-    "FMPP4042837285": "Put to L1K11 | CentralHub_L_JLRSF1 and scan barcode",
-    "FMPP4042862193": "Put to L1K11 | CentralHub_L_JLRSF1 and scan barcode",
-    "FMPP4043299528": "Put to L1K11 | CentralHub_L_JLRSF1 and scan barcode",
-    "FMPP4043299529": "Put to L1K11 | CentralHub_L_JLRSF1 and scan barcode"
+    "FMPC6148297151": "Put to L1K16 | CentralHub_L_RAI1 and scan barcode"
   },
+    
   "CentralHub_L_CJB3": {
     "FMPC6153949606": "Put to A28 | SATELLITEHUB_FKKRR and scan barcode",
     "FMPP4045938777": "Put to A22 | SATELLITEHUB_FKCJB and scan barcode",
