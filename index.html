@@ -791,9 +791,7 @@
                 return;
             }
 
-            const btn = document.getElementById("btnSubmitDb");
-            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Submitting...';
-            btn.disabled = true;
+            $('#dbSyncStatus').html('<i class="fa fa-spinner fa-spin"></i> Saving to Database...');
 
             const user = sessionStorage.getItem('hms_user') || 'Unknown_User';
             const startStr = trainingStartTime ? trainingStartTime.toLocaleString().replace(/,/g, '') : 'N/A';
@@ -838,7 +836,7 @@
 
             iframe.onload = function() {
                 toastr.success('Training Data Successfully Saved!');
-                btn.innerHTML = '<i class="fa fa-check"></i> Saved to Database';
+                $('#dbSyncStatus').html('<i class="fa fa-check" style="color: #28a745;"></i> Saved to Database Automatically');
                 setTimeout(() => {
                     document.body.removeChild(form);
                     document.body.removeChild(iframe);
@@ -847,6 +845,7 @@
 
             form.submit();
         }
+
 
         function restartTraining() {
             handleLogout();
