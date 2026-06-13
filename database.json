@@ -236,16 +236,16 @@
     "FMPC6170754136": "Put to Z2-L14 | Satellitehub_HAV and Scan barcode"
   },
   "kol_bts_wh_l_05l": {
-    "FMPP4054841808": "Put to Z2-L14 | Satellitehub_Patrasayer and Scan barcode",
-    "FMPP4054836408": "Put to Z2-L10 | Satellitehub_Patrasayer",
-    "FMPC6167193901": "Put to Z1-R11 | SATELLITEHUB_DGPR and Scan barcode",
-    "FMPP4054837662": "Put to Z1-R11 | SATELLITEHUB_DGPR and Scan barcode",
-    "FMPC6167197324": "Put to Z2-L10 | Satellitehub_Bolpur and Scan barcode",
-    "FMPP4054841018": "Put to Z2-L10 | Satellitehub_Bolpur and Scan barcode",
-    "FMPP4054842784": "Put to Z2-L10 | Satellitehub_Bolpur and Scan barcode",
-    "FMPC6167192595": "Put to Z2-L10 | SATELLITEHUB_FKBGT and Scan barcode",
-    "11927143844690": "Put to Z2-L10 | SATELLITEHUB_FKBGT and Scan barcode",
-    "FMPC6167190533": "Put to Z2-L10 | SATELLITEHUB_FKBGT and Scan barcode"
+    "FMPP4054841808": "Put to K3R36 | Satellitehub_Bolpur and Scan barcode",
+    "FMPP4054836408": "Put to K3R36 | Satellitehub_Bolpur and Scan barcode",
+    "FMPC6167193901": "Put to K6L58 | SATELLITEHUB_DGPR and Scan barcode",
+    "FMPP4054837662": "Put to K6L58 | SATELLITEHUB_DGPR and Scan barcode",
+    "FMPC6167197324": "Put to K9Z92 | SATELLITEHUB_FKBGT and Scan barcode",
+    "FMPP4054841018": "Put to K9Z92 | SATELLITEHUB_FKBGT and Scan barcode",
+    "FMPP4054842784": "Put to K3R32 | Satellitehub_Patrasayer and Scan barcode",
+    "FMPC6167192595": "Put to K3R32 | Satellitehub_Patrasayer and Scan barcode",
+    "11927143844690": "Put to K4R48 SATELLITEHUB_FKBGT and Scan barcode",
+    "FMPC6167190533": "Put to K4R48 SATELLITEHUB_FKBGT and Scan barcode"
   },
   "vzg_yer_wh_l_01l": {
     "FMPP4059754496": "Put to V2-R07 | SATELLITEHUB_KTPFK and Scan barcode",
