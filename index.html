@@ -106,7 +106,7 @@
         .error-list { margin-bottom: 0; padding-left: 20px; font-size: 14px; color: #333; max-height: 150px; overflow-y: auto; }
         .error-list li { margin-bottom: 5px; }
 
-        /* NEW: Trainer Table UI */
+        /* Trainer Table UI */
         .trainer-table-container { margin-top: 25px; max-height: 350px; overflow-y: auto; border: 1px solid #e1e1e1; border-radius: 4px; background: #fff; }
         .trainer-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;}
         .trainer-table th { background: #f4f6f8; padding: 12px; position: sticky; top: 0; border-bottom: 2px solid #ddd; z-index: 2; color: #333;}
@@ -116,30 +116,27 @@
         .status-error { background: #f8d7da; color: #721c24; }
         .status-pending { background: #fff3cd; color: #856404; }
 
-        /* NEW: Submission Overlay & OS Interlock */
+        /* Restyled Themed Submission Interlock Overlay */
         #submission-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(3px);
             z-index: 999999; display: none; flex-direction: column;
-            align-items: center; justify-content: center; color: white;
-            pointer-events: all; /* Captures all clicks */
+            align-items: center; justify-content: center;
+            pointer-events: all;
+        }
+        .submission-modal-card {
+            background: #fff; border-top: 6px solid #109e9a;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-radius: 8px;
+            padding: 35px 40px; width: 90%; max-width: 420px; text-align: center;
+            border: 1px solid #e1e1e1; border-top: 6px solid #109e9a;
         }
         .progress-bar-container {
-            width: 300px; height: 20px; background: #333; border-radius: 10px;
-            margin-top: 20px; overflow: hidden; border: 2px solid #555;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            width: 100%; height: 14px; background: #eaeff1; border-radius: 7px;
+            margin-top: 20px; overflow: hidden; border: 1px solid #d1d5d7;
         }
         .progress-bar-fill {
             height: 100%; width: 0%; background: #2874f0;
             transition: width 1.2s cubic-bezier(0.1, 0.7, 1.0, 0.1), background-color 0.3s;
-        }
-
-        /* NEW: Sparkles FX */
-        #fx-stage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999998; overflow: hidden; }
-        .sparkle { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: sparkle-anim 1.5s forwards ease-out; }
-        @keyframes sparkle-anim {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
         }
 
         /* ================= MOBILE RESPONSIVENESS ================= */
@@ -162,17 +159,19 @@
 </head>
 <body>
 
-    <div id="fx-stage"></div>
-
+    <!-- Submission Blocking Modal Overlay -->
     <div id="submission-overlay">
-        <i class="fa fa-cloud-upload" style="font-size: 48px; color: #109e9a; margin-bottom: 15px;"></i>
-        <h2 id="submitText" style="margin: 0; font-size: 24px;">Syncing with Server...</h2>
-        <p style="color: #aaa; margin-top: 5px;">Please do not close this window.</p>
-        <div class="progress-bar-container">
-            <div id="submitProgressBar" class="progress-bar-fill"></div>
+        <div class="submission-modal-card">
+            <i class="fa fa-spinner fa-spin" style="font-size: 42px; color: #109e9a; margin-bottom: 15px;"></i>
+            <h3 id="submitText" style="margin: 0; color: #333; font-weight: bold;">Saving Session Data...</h3>
+            <p style="color: #666; font-size: 13px; margin-top: 8px; margin-bottom: 0;">Please wait while records sync with Google Sheets.</p>
+            <div class="progress-bar-container">
+                <div id="submitProgressBar" class="progress-bar-fill"></div>
+            </div>
         </div>
     </div>
 
+    <!-- ================= LOGIN VIEW ================= -->
     <div id="login-view">
         <nav class="navbar login-navbar navbar-fixed-top">
             <div class="container-fluid">
@@ -213,8 +212,10 @@
         </div>
     </div>
 
+    <!-- ================= APP VIEW ================= -->
     <div id="app-view" class="hidden">
         
+        <!-- Main Navbar -->
         <nav class="navbar-new">
             <div class="navbar-left">
                 <div class="humberger" onclick="toggleSidebar()">
@@ -261,6 +262,7 @@
         </nav>
 
         <div class="app-container">
+            <!-- Sidebar -->
             <div id="side_wrapper" class="collapsed">
                 <div class="side-bar">
                     <ul class="list-unstyled">
@@ -301,17 +303,20 @@
                         <li class="side-menu-item"><i class="fa fa-plus"></i><a href="#">Shelf Receive Shipment</a></li>
                         <li class="side-menu-item" onclick="navigate('handover-rc')"><i class="fa fa-plus"></i><a href="#">Handover to RC</a></li>
                         
+                        <!-- SECRET ADMIN MENU -->
                         <h5 class="side-menu" style="margin-top: 30px; background: #1c2732; border-top: 1px solid #111;">System Admin</h5>
                         <li class="side-menu-item" onclick="navigate('trainer-portal')"><i class="fa fa-lock" style="color:#666;"></i><a href="#" style="color:#aaa;">Trainer Portal</a></li>
                     </ul>
                 </div>
             </div>
 
+            <!-- Overlay for when no facility is selected -->
             <div id="sidebar-overlay" class="side-bar-overlay">
                 <span>Please select Facility first to perform any operations.</span>
             </div>
 
             <div class="main-content">
+                <!-- A. Landing View -->
                 <div id="view-landing" class="view-section active-view">
                     <div style="max-width: 600px;">
                         <label class="theme-label">Scan Station Barcode</label>
@@ -329,6 +334,7 @@
                     </div>
                 </div>
 
+                <!-- B. OB Put View -->
                 <div id="view-ob-put" class="view-section">
                     <div class="training-header-bar">
                         <h3 class="page-title" style="margin: 0;">Put Item</h3>
@@ -350,6 +356,7 @@
                     </div>
                 </div>
                 
+                <!-- C. Trainer Portal View -->
                 <div id="view-trainer-portal" class="view-section">
                     <h3 class="page-title">Trainer Portal</h3>
                     
@@ -388,6 +395,7 @@
                             </div>
                         </div>
 
+                        <!-- Live Tracking Table -->
                         <div class="trainer-table-container">
                             <table class="trainer-table">
                                 <thead>
@@ -398,7 +406,8 @@
                                     </tr>
                                 </thead>
                                 <tbody id="trainerTableBody">
-                                    </tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
                             </table>
                         </div>
                         
@@ -408,6 +417,7 @@
                     </div>
                 </div>
 
+                <!-- D. End Session Summary Screen -->
                 <div id="view-score-summary" class="view-section">
                     <div class="summary-card">
                         <i class="fa fa-check-circle" style="font-size: 60px; color: #28a745; margin-bottom: 15px;"></i>
@@ -436,6 +446,7 @@
                             <h3 style="margin: 0; color: #333; font-weight: normal;">Accuracy Rate: <span id="sumAccuracy" style="font-weight: bold; color: #109e9a; font-size: 32px;">0%</span></h3>
                         </div>
 
+                        <!-- Error Review Section -->
                         <div id="errorReviewSection" class="error-review-box">
                             <h4><i class="fa fa-exclamation-triangle"></i> Items Scanned to Wrong Bin:</h4>
                             <ul id="errorList" class="error-list"></ul>
@@ -447,6 +458,7 @@
                     </div>
                 </div>
 
+                <!-- E. Handover to RC View -->
                 <div id="view-handover-rc" class="view-section">
                     <h3 class="page-title">Handover to RC</h3>
                     <div style="width: 100%; max-width: 600px;">
@@ -459,6 +471,7 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -583,7 +596,7 @@
                             $('#largeBoxText').html(`You scanned a Shipment.<br>Please scan the BIN for ${pendingTrackingId}`);
                         } 
                         else {
-                            trainingScore.wrong++; // PENALTY APPLIED HERE
+                            trainingScore.wrong++; 
                             wronglyScannedIds.add(pendingTrackingId); 
                             
                             $('#msgLargeBox').css('background-color', '#FFBABA').show();
@@ -709,7 +722,6 @@
             $('#uiScoreSkipped').text(trainingScore.skipped);
             $('#uiProgress').text(`${processedShipments.size} / ${totalShipmentsForSite}`);
             
-            // Live update the table if dashboard is open
             if($('#trainer-dashboard').is(':visible')) {
                 renderTrainerTable();
             }
@@ -719,7 +731,7 @@
             const pin = $('#trainer-pin').val();
             if(pin === '1234') {
                 $('#trainer-lock-screen').hide();
-                renderTrainerTable(); // Build table
+                renderTrainerTable(); 
                 $('#trainer-dashboard').fadeIn();
                 $('#trainer-pin').val('');
                 $('#pin-error').hide();
@@ -728,7 +740,6 @@
             }
         }
 
-        // Populates the Trainer Table dynamically
         function renderTrainerTable() {
             const tbody = $('#trainerTableBody');
             tbody.empty();
@@ -774,28 +785,6 @@
             return `${diffMins}m ${diffSecs}s`;
         }
 
-        function fireSparkles() {
-            const stage = document.getElementById('fx-stage');
-            if(!stage) return;
-            const colors = ['#deff9a', '#FFD700', '#0fa6a1', '#ff4081', '#28a745'];
-            for(let i=0; i<40; i++) {
-                let s = document.createElement('div');
-                s.className = 'sparkle';
-                s.style.left = '50%';
-                s.style.top = '50%';
-                s.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                s.style.boxShadow = `0 0 10px ${s.style.backgroundColor}`;
-                let angle = Math.random() * Math.PI * 2;
-                let velocity = 80 + Math.random() * 300;
-                let tx = Math.cos(angle) * velocity + 'px';
-                let ty = Math.sin(angle) * velocity + 'px';
-                s.style.setProperty('--tx', tx);
-                s.style.setProperty('--ty', ty);
-                stage.appendChild(s);
-            }
-            setTimeout(() => { stage.innerHTML = ''; }, 2000);
-        }
-
         function endTrainingSession() {
             trainingEndTime = new Date();
             let totalAttempts = trainingScore.correct + trainingScore.wrong;
@@ -820,8 +809,7 @@
             }
 
             navigate('score-summary');
-            fireSparkles(); // Trigger Celebration
-            submitReportToGoogleSheets(); // Auto Trigger
+            submitReportToGoogleSheets();
         }
 
         function submitReportToGoogleSheets() {
@@ -829,13 +817,11 @@
                 return;
             }
 
-            // Fire the OS and DOM Interlocks
             window.isSubmitting = true;
             $('#submission-overlay').css('display', 'flex');
-            $('#submitText').text('Syncing with Server...');
+            $('#submitText').text('Saving Session Data...');
             $('#submitProgressBar').css('width', '0%').css('background-color', '#2874f0');
             
-            // Fake animation up to 85%
             setTimeout(() => { $('#submitProgressBar').css('width', '85%'); }, 100);
 
             const user = sessionStorage.getItem('hms_user') || 'Unknown_User';
@@ -873,12 +859,10 @@
             document.body.appendChild(form);
 
             iframe.onload = function() {
-                // Complete progress bar to 100%
-                $('#submitProgressBar').css('width', '100%').css('background-color', '#28a745');
-                $('#submitText').text('Data Saved Successfully!');
+                $('#submitProgressBar').css('width', '100%').css('background-color', '#109e9a');
+                $('#submitText').text('Session Synced!');
                 
                 setTimeout(() => {
-                    // Release interlocks
                     window.isSubmitting = false;
                     $('#submission-overlay').fadeOut(300, function() {
                         document.body.removeChild(form);
