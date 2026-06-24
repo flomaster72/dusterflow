@@ -44,7 +44,6 @@
         
         .navbar-right { display: flex; align-items: center; gap: 20px; }
         
-        /* Dropdown Styling */
         .user-dropdown-toggle { color: #222; cursor: pointer; font-size: 18px; padding: 5px; }
         .user-dropdown-menu { border-radius: 2px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border: 1px solid #ccc; margin-top: 8px; }
         .user-dropdown-menu > li.disabled > a { color: #777; cursor: default; }
@@ -90,12 +89,12 @@
         .btn-pink:hover { background-color: #e91e63; }
         
         /* Trainer Dashboard & Summary UI */
-        .trainer-card { background: white; max-width: 650px; margin: 20px 0; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 4px solid #343a40;}
+        .trainer-card { background: white; max-width: 800px; margin: 20px 0; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 4px solid #343a40;}
         .trainer-stats { display: flex; gap: 20px; margin-top: 20px; }
         .t-stat { flex: 1; padding: 15px; background: #f8f9fa; border-radius: 5px; text-align: center; border: 1px solid #dee2e6; }
         .t-stat h2 { margin: 0; font-weight: bold; }
         
-        .summary-card { background: white; max-width: 650px; margin: 40px auto; text-align: center; padding: 40px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 6px solid #109e9a;}
+        .summary-card { background: white; max-width: 650px; margin: 40px auto; text-align: center; padding: 40px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 6px solid #109e9a; position: relative;}
         .stat-box { flex: 1; padding: 15px; }
         .stat-box h1 { margin: 0; font-size: 48px; font-weight: bold; }
         .stat-box p { color: #777; margin: 5px 0 0 0; text-transform: uppercase; font-size: 12px; font-weight: bold;}
@@ -107,34 +106,72 @@
         .error-list { margin-bottom: 0; padding-left: 20px; font-size: 14px; color: #333; max-height: 150px; overflow-y: auto; }
         .error-list li { margin-bottom: 5px; }
 
+        /* NEW: Trainer Table UI */
+        .trainer-table-container { margin-top: 25px; max-height: 350px; overflow-y: auto; border: 1px solid #e1e1e1; border-radius: 4px; background: #fff; }
+        .trainer-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;}
+        .trainer-table th { background: #f4f6f8; padding: 12px; position: sticky; top: 0; border-bottom: 2px solid #ddd; z-index: 2; color: #333;}
+        .trainer-table td { padding: 10px 12px; border-bottom: 1px solid #eee; color: #555; }
+        .status-badge { padding: 5px 10px; border-radius: 12px; font-weight: bold; font-size: 11px; display: inline-block; }
+        .status-correct { background: #d4edda; color: #155724; }
+        .status-error { background: #f8d7da; color: #721c24; }
+        .status-pending { background: #fff3cd; color: #856404; }
+
+        /* NEW: Submission Overlay & OS Interlock */
+        #submission-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            z-index: 999999; display: none; flex-direction: column;
+            align-items: center; justify-content: center; color: white;
+            pointer-events: all; /* Captures all clicks */
+        }
+        .progress-bar-container {
+            width: 300px; height: 20px; background: #333; border-radius: 10px;
+            margin-top: 20px; overflow: hidden; border: 2px solid #555;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        .progress-bar-fill {
+            height: 100%; width: 0%; background: #2874f0;
+            transition: width 1.2s cubic-bezier(0.1, 0.7, 1.0, 0.1), background-color 0.3s;
+        }
+
+        /* NEW: Sparkles FX */
+        #fx-stage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999998; overflow: hidden; }
+        .sparkle { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: sparkle-anim 1.5s forwards ease-out; }
+        @keyframes sparkle-anim {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
         /* ================= MOBILE RESPONSIVENESS ================= */
         @media (max-width: 768px) {
             .box { width: 90%; }
             .login-container { margin-top: 80px; }
-            
-            /* Navbar Stacking for Mobile */
             .navbar-new { flex-wrap: wrap; height: auto; padding: 10px 15px; gap: 10px; }
             .navbar-left { width: 100%; justify-content: space-between; }
             .navbar-right { width: 100%; justify-content: space-between; gap: 10px; }
             .facility-select-nav { width: 100%; max-width: none; flex-grow: 1; }
-            
-            /* Absolute Sidebar Overlay for Mobile */
             #side_wrapper { position: absolute; height: 100%; z-index: 1000; left: 0; top: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.3); transition: left 0.3s; }
             #side_wrapper.collapsed { left: -250px; width: 250px; box-shadow: none; border: none; }
-            
             .main-content { padding: 15px 20px; }
-            
-            /* Scale Down Elements */
             .large-message-text { font-size: 2.5rem; }
             .trainer-stats { flex-direction: column; gap: 10px; }
-            
-            /* Stat Summary Box Stacking */
             #view-score-summary .stat-box { border-left: none !important; border-right: none !important; border-bottom: 1px solid #eee; }
             #view-score-summary > div > div:nth-child(4) { flex-direction: column; gap: 5px; }
         }
     </style>
 </head>
 <body>
+
+    <div id="fx-stage"></div>
+
+    <div id="submission-overlay">
+        <i class="fa fa-cloud-upload" style="font-size: 48px; color: #109e9a; margin-bottom: 15px;"></i>
+        <h2 id="submitText" style="margin: 0; font-size: 24px;">Syncing with Server...</h2>
+        <p style="color: #aaa; margin-top: 5px;">Please do not close this window.</p>
+        <div class="progress-bar-container">
+            <div id="submitProgressBar" class="progress-bar-fill"></div>
+        </div>
+    </div>
 
     <div id="login-view">
         <nav class="navbar login-navbar navbar-fixed-top">
@@ -326,9 +363,15 @@
                     </div>
 
                     <div id="trainer-dashboard" class="trainer-card" style="display: none;">
-                        <h4 style="margin-top:0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Live Session Monitor</h4>
-                        <p style="margin-bottom: 5px;">Current Trainee: <strong id="dashTraineeName">None</strong></p>
-                        <p>Progress: <strong id="uiProgress" style="color: #2874f0;">0 / 0</strong></p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                            <h4 style="margin:0;">Live Session Monitor</h4>
+                            <button class="btn btn-sm btn-default" onclick="renderTrainerTable()"><i class="fa fa-refresh"></i> Refresh</button>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <p style="margin-bottom: 5px;">Current Trainee: <strong id="dashTraineeName">None</strong></p>
+                            <p>Progress: <strong id="uiProgress" style="color: #2874f0;">0 / 0</strong></p>
+                        </div>
                         
                         <div class="trainer-stats">
                             <div class="t-stat">
@@ -343,6 +386,20 @@
                                 <h2 id="uiScoreSkipped" style="color: #ff9800;">0</h2>
                                 <p style="margin:0; font-size: 12px; color: #666;">SKIPS</p>
                             </div>
+                        </div>
+
+                        <div class="trainer-table-container">
+                            <table class="trainer-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tracking ID</th>
+                                        <th>Target Bin</th>
+                                        <th>Live Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trainerTableBody">
+                                    </tbody>
+                            </table>
                         </div>
                         
                         <div style="margin-top: 30px; text-align: right;">
@@ -381,12 +438,7 @@
 
                         <div id="errorReviewSection" class="error-review-box">
                             <h4><i class="fa fa-exclamation-triangle"></i> Items Scanned to Wrong Bin:</h4>
-                            <ul id="errorList" class="error-list">
-                                </ul>
-                        </div>
-
-                        <div id="dbSyncStatus" style="margin-top: 25px; font-size: 14px; font-weight: bold; color: #2874f0;">
-                            <i class="fa fa-spinner fa-spin"></i> Saving to Database...
+                            <ul id="errorList" class="error-list"></ul>
                         </div>
                         
                         <div class="action-bar">
@@ -429,15 +481,23 @@
         let pendingTrackingId = null; 
         
         let trainingScore = { correct: 0, wrong: 0, skipped: 0 };
-        let wronglyScannedIds = new Set(); // Tracks items scanned to wrong bins
+        let wronglyScannedIds = new Set(); 
         let trainingStartTime = null;
         let trainingEndTime = null;
+
+        // OS Interlock for closing tab during sync
+        window.isSubmitting = false;
+        window.addEventListener('beforeunload', function (e) {
+            if (window.isSubmitting) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
         
         toastr.options = { positionClass: "toast-bottom-center", showDuration: "300", hideDuration: "1000", timeOut: 2000 };
 
         $(document).ready(function() {
 
-            // Auto collapse sidebar on mobile load
             if ($(window).width() < 768) {
                 $('#side_wrapper').addClass('collapsed');
             }
@@ -523,8 +583,8 @@
                             $('#largeBoxText').html(`You scanned a Shipment.<br>Please scan the BIN for ${pendingTrackingId}`);
                         } 
                         else {
-                            trainingScore.wrong++; // PENALTY APPLIED HERE (WRONG BIN ONLY)
-                            wronglyScannedIds.add(pendingTrackingId); // Record the specific tracking ID
+                            trainingScore.wrong++; // PENALTY APPLIED HERE
+                            wronglyScannedIds.add(pendingTrackingId); 
                             
                             $('#msgLargeBox').css('background-color', '#FFBABA').show();
                             $('#largeBoxText').html(`Wrong Bin, Rescan the SHIPMENT ${pendingTrackingId}`);
@@ -552,7 +612,7 @@
                             $('#actionButtons').hide();
                             $('#ob-scan-label').text('Scan Item');
                             
-                            trainingScore.correct++; // RC COUNTS AS CORRECT
+                            trainingScore.correct++; 
                             processedShipments.add(scannedValue);
                             updateScoreUI();
                             checkIfTrainingComplete();
@@ -576,7 +636,6 @@
                         $('#ob-scan-label').text('Scan Barcode');
 
                     } else {
-                        // SCANNED INVALID/TYPO BARCODE IN STATE 1 -> NO PENALTY
                         updateScoreUI();
                         $('#msgLargeBox').css('background-color', '#FFBABA').show();
                         $('#largeBoxText').html("Item not found"); 
@@ -586,28 +645,21 @@
             });
         });
 
-        // LIVE DATABASE FETCH FROM GOOGLE SHEETS
         async function fetchDatabase() {
             try {
-                // Fetch directly from the doGet() function of your Google App Script
                 const response = await fetch(GOOGLE_SHEET_WEBHOOK_URL + '?t=' + new Date().getTime());
                 if (!response.ok) throw new Error("Could not load database from Google Sheets");
                 
                 fullDatabase = await response.json();
                 
                 if (fullDatabase.error) {
-                    console.error("Google Sheets Error:", fullDatabase.error);
                     toastr.error("Database tab missing in Google Sheets!");
                     throw new Error("DB_Master tab not found");
                 }
                 
-                console.log("Database successfully loaded from Google Sheets.");
                 if(currentFacility) { initFacilityData(); }
-                
             } catch (error) {
                 console.error("Failed to fetch database from Google Sheets, using emergency fallback.", error);
-                
-                // 5-item emergency fallback just in case the Google connection drops
                 fullDatabase = {
                   "CentralHub_L_MUMX": {
                     "FMPC6008240197": "Put to Z3-G65 | CentralHub_L_PUNML1 and scan barcode",
@@ -644,7 +696,7 @@
             siteDatabase = fullDatabase[currentFacility] || {};
             totalShipmentsForSite = Object.keys(siteDatabase).length;
             processedShipments.clear();
-            wronglyScannedIds.clear(); // Reset wrong scan list
+            wronglyScannedIds.clear(); 
             trainingScore = { correct: 0, wrong: 0, skipped: 0 };
             trainingStartTime = new Date(); 
             
@@ -656,18 +708,53 @@
             $('#uiScoreWrong').text(trainingScore.wrong);
             $('#uiScoreSkipped').text(trainingScore.skipped);
             $('#uiProgress').text(`${processedShipments.size} / ${totalShipmentsForSite}`);
+            
+            // Live update the table if dashboard is open
+            if($('#trainer-dashboard').is(':visible')) {
+                renderTrainerTable();
+            }
         }
 
         function unlockTrainer() {
             const pin = $('#trainer-pin').val();
             if(pin === '1234') {
                 $('#trainer-lock-screen').hide();
+                renderTrainerTable(); // Build table
                 $('#trainer-dashboard').fadeIn();
                 $('#trainer-pin').val('');
                 $('#pin-error').hide();
             } else {
                 $('#pin-error').show();
             }
+        }
+
+        // Populates the Trainer Table dynamically
+        function renderTrainerTable() {
+            const tbody = $('#trainerTableBody');
+            tbody.empty();
+            let html = '';
+            
+            for (let trackingId in siteDatabase) {
+                let expectedLoc = siteDatabase[trackingId].split('|')[0].replace('Put to', '').trim();
+                let statusHtml = '';
+                
+                if (wronglyScannedIds.has(trackingId) && !processedShipments.has(trackingId)) {
+                    statusHtml = '<span class="status-badge status-error"><i class="fa fa-times"></i> Error (Pending Fix)</span>';
+                } else if (wronglyScannedIds.has(trackingId) && processedShipments.has(trackingId)) {
+                    statusHtml = '<span class="status-badge status-error"><i class="fa fa-check-square"></i> Fixed (Had Error)</span>';
+                } else if (processedShipments.has(trackingId)) {
+                    statusHtml = '<span class="status-badge status-correct"><i class="fa fa-check"></i> Correct</span>';
+                } else {
+                    statusHtml = '<span class="status-badge status-pending"><i class="fa fa-clock-o"></i> Pending</span>';
+                }
+                
+                html += `<tr>
+                    <td><strong>${trackingId}</strong></td>
+                    <td>${expectedLoc}</td>
+                    <td>${statusHtml}</td>
+                </tr>`;
+            }
+            tbody.html(html);
         }
 
         function checkIfTrainingComplete() {
@@ -687,9 +774,30 @@
             return `${diffMins}m ${diffSecs}s`;
         }
 
+        function fireSparkles() {
+            const stage = document.getElementById('fx-stage');
+            if(!stage) return;
+            const colors = ['#deff9a', '#FFD700', '#0fa6a1', '#ff4081', '#28a745'];
+            for(let i=0; i<40; i++) {
+                let s = document.createElement('div');
+                s.className = 'sparkle';
+                s.style.left = '50%';
+                s.style.top = '50%';
+                s.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                s.style.boxShadow = `0 0 10px ${s.style.backgroundColor}`;
+                let angle = Math.random() * Math.PI * 2;
+                let velocity = 80 + Math.random() * 300;
+                let tx = Math.cos(angle) * velocity + 'px';
+                let ty = Math.sin(angle) * velocity + 'px';
+                s.style.setProperty('--tx', tx);
+                s.style.setProperty('--ty', ty);
+                stage.appendChild(s);
+            }
+            setTimeout(() => { stage.innerHTML = ''; }, 2000);
+        }
+
         function endTrainingSession() {
             trainingEndTime = new Date();
-            
             let totalAttempts = trainingScore.correct + trainingScore.wrong;
             let accuracy = totalAttempts > 0 ? Math.round((trainingScore.correct / totalAttempts) * 100) : 0;
 
@@ -703,28 +811,32 @@
             else if (accuracy >= 70) { $('#sumAccuracy').css('color', '#ff9800'); } 
             else { $('#sumAccuracy').css('color', '#dc3545'); } 
 
-            // Show Error Review Box if they made mistakes
             if (wronglyScannedIds.size > 0) {
-                $('#errorList').empty(); // Clear old list
-                wronglyScannedIds.forEach(id => {
-                    $('#errorList').append(`<li>${id}</li>`);
-                });
+                $('#errorList').empty();
+                wronglyScannedIds.forEach(id => { $('#errorList').append(`<li>${id}</li>`); });
                 $('#errorReviewSection').show();
             } else {
                 $('#errorReviewSection').hide();
             }
 
             navigate('score-summary');
-            submitReportToGoogleSheets(); // AUTOMATIC SUBMISSION TRIGGERED HERE
+            fireSparkles(); // Trigger Celebration
+            submitReportToGoogleSheets(); // Auto Trigger
         }
 
         function submitReportToGoogleSheets() {
             if(GOOGLE_SHEET_WEBHOOK_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE" || GOOGLE_SHEET_WEBHOOK_URL === "") {
-                toastr.warning('Webhook URL not set up yet.');
                 return;
             }
 
-            $('#dbSyncStatus').html('<i class="fa fa-spinner fa-spin"></i> Saving to Database...');
+            // Fire the OS and DOM Interlocks
+            window.isSubmitting = true;
+            $('#submission-overlay').css('display', 'flex');
+            $('#submitText').text('Syncing with Server...');
+            $('#submitProgressBar').css('width', '0%').css('background-color', '#2874f0');
+            
+            // Fake animation up to 85%
+            setTimeout(() => { $('#submitProgressBar').css('width', '85%'); }, 100);
 
             const user = sessionStorage.getItem('hms_user') || 'Unknown_User';
             const startStr = trainingStartTime ? trainingStartTime.toLocaleString().replace(/,/g, '') : 'N/A';
@@ -746,59 +858,48 @@
             form.target = iframeName;
             form.style.display = "none";
 
-            // INCLUDE THE WRONG TRACKING IDS IN THE PAYLOAD
             const payload = {
-                employeeId: user,
-                facility: currentFacility,
-                startTime: startStr,
-                finishTime: endStr,
-                timeTaken: timeTaken,
-                correct: trainingScore.correct,
-                errors: trainingScore.wrong,
-                skipped: trainingScore.skipped,
-                accuracy: accuracy,
+                employeeId: user, facility: currentFacility, startTime: startStr, finishTime: endStr,
+                timeTaken: timeTaken, correct: trainingScore.correct, errors: trainingScore.wrong,
+                skipped: trainingScore.skipped, accuracy: accuracy,
                 wrongTrackingIds: Array.from(wronglyScannedIds).join(', ') 
             };
 
             for (let key in payload) {
                 let input = document.createElement("input");
-                input.type = "hidden";
-                input.name = key;
-                input.value = payload[key];
+                input.type = "hidden"; input.name = key; input.value = payload[key];
                 form.appendChild(input);
             }
             document.body.appendChild(form);
 
             iframe.onload = function() {
-                toastr.success('Training Data Successfully Saved!');
-                $('#dbSyncStatus').html('<i class="fa fa-check" style="color: #28a745;"></i> Saved to Database Automatically');
+                // Complete progress bar to 100%
+                $('#submitProgressBar').css('width', '100%').css('background-color', '#28a745');
+                $('#submitText').text('Data Saved Successfully!');
+                
                 setTimeout(() => {
-                    document.body.removeChild(form);
-                    document.body.removeChild(iframe);
-                }, 1000);
+                    // Release interlocks
+                    window.isSubmitting = false;
+                    $('#submission-overlay').fadeOut(300, function() {
+                        document.body.removeChild(form);
+                        document.body.removeChild(iframe);
+                    });
+                }, 800);
             };
 
             form.submit();
         }
 
-        function restartTraining() {
-            // Logs out current user cleanly
-            handleLogout();
-        }
+        function restartTraining() { handleLogout(); }
 
         function handleSkip() {
-            if(pendingTrackingId) {
-                trainingScore.skipped++; 
-                processedShipments.add(pendingTrackingId); 
-            }
+            if(pendingTrackingId) { trainingScore.skipped++; processedShipments.add(pendingTrackingId); }
             pendingTrackingId = null; 
             $('#ob-scan-label').text('Scan Item');
             $('#actionButtons').hide();
-            
             $('#msgLargeBox').css('background-color', '#e2f0ca').show();
             $('#largeBoxText').html("Put Cancelled");
             $('#ob-scan-input').val('').focus();
-            
             updateScoreUI();
             checkIfTrainingComplete();
         }
@@ -812,13 +913,10 @@
         }
 
         function handleLogout() {
-            // Reload page to wipe all arrays completely
             location.reload(); 
         }
 
-        function toggleSidebar() {
-            $('#side_wrapper').toggleClass('collapsed');
-        }
+        function toggleSidebar() { $('#side_wrapper').toggleClass('collapsed'); }
 
         function handleFacilityChange() {
             currentFacility = $('#facilityDropdown').val();
@@ -832,10 +930,7 @@
                 toastr.warning("Please select a facility first.");
                 return;
             }
-            
-            if ($(window).width() < 768) {
-                $('#side_wrapper').addClass('collapsed');
-            }
+            if ($(window).width() < 768) { $('#side_wrapper').addClass('collapsed'); }
 
             currentView = viewName;
             $('.view-section').removeClass('active-view');
@@ -847,7 +942,6 @@
                 $('#msgLargeBox, #actionButtons').hide();
                 $('#lastScanText').text('');
                 $('#ob-scan-input').val('').focus();
-                
                 if(!trainingStartTime) { initFacilityData(); }
             } else if (currentView === 'handover-rc') {
                 $('#rc-scan-input').val('').focus();
