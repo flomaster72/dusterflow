@@ -46,6 +46,7 @@
         
         .user-dropdown-toggle { color: #222; cursor: pointer; font-size: 18px; padding: 5px; }
         .user-dropdown-menu { border-radius: 2px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border: 1px solid #ccc; margin-top: 8px; }
+        .user-dropdown-menu { position: absolute; right: 0; left: auto; }
         .user-dropdown-menu > li.disabled > a { color: #777; cursor: default; }
         .user-dropdown-menu > li > a { padding: 10px 20px; }
         
@@ -252,11 +253,13 @@
 
                 <div class="dropdown">
                     <i class="fa fa-user user-dropdown-toggle dropdown-toggle" id="userDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"></i>
-                    <ul class="dropdown-menu dropdown-menu-right user-dropdown-menu" aria-labelledby="userDropdownMenu">
+                   <ul class="dropdown-menu dropdown-menu-right user-dropdown-menu" aria-labelledby="userDropdownMenu">
                         <li class="disabled"><a href="#" id="loggedInUser">User</a></li>
+                        <li><a href="#" onclick="navigate('trainer-portal')"><i class="fa fa-lock"></i> Trainer Portal</a></li>
                         <li role="separator" class="divider"></li>
-                        <li><a href="#" onclick="handleLogout()">Logout</a></li>
+                        <li><a href="#" onclick="handleLogout()"><i class="fa fa-sign-out"></i> Logout</a></li>
                     </ul>
+            
                 </div>
             </div>
         </nav>
